@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ANTIMATTER // Market & ROI Simulation Engine</title>
+    <title>ANTIMATTER // Market Penetration & Time-Series Simulation Engine</title>
     <style>
         :root {
-            --bg-color: #0a0a0c;
-            --panel-bg: #111114;
+            --bg-color: #050507;
+            --panel-bg: #0c0c10;
+            --panel-border: #1a1a24;
             --accent-green: #00ff66;
             --accent-blue: #00e5ff;
-            --text-main: #e2e8f0;
+            --accent-red: #ff3366;
+            --accent-amber: #ffaa00;
+            --text-main: #f1f5f9;
             --text-muted: #64748b;
-            --border-color: #1e293b;
-            --warning-amber: #f59e0b;
         }
 
         * {
@@ -26,435 +27,961 @@
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
-            padding: 40px 20px;
-            line-height: 1.6;
+            padding: 30px 15px;
+            line-height: 1.5;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
         header {
-            margin-bottom: 40px;
-            border-bottom: 1px dashed var(--border-color);
+            border-bottom: 2px solid var(--panel-border);
             padding-bottom: 20px;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            letter-spacing: 2px;
-            color: #fff;
-            text-shadow: 0 0 10px rgba(0, 255, 102, 0.2);
-        }
-
-        .notice-banner {
-            background-color: rgba(245, 158, 11, 0.1);
-            border: 1px solid var(--warning-amber);
-            padding: 15px;
-            border-radius: 4px;
             margin-bottom: 30px;
-            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
         }
 
-        .grid-layout {
+        header h1 {
+            font-size: 24px;
+            letter-spacing: 2px;
+            color: var(--text-main);
+        }
+
+        header h1 span {
+            color: var(--accent-green);
+        }
+
+        .system-status {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-align: right;
+        }
+
+        /* Dashboard Layout */
+        .dashboard-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 40px;
+            grid-template-columns: 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
         }
 
-        @media (max-width: 900px) {
-            .grid-layout { grid-template-columns: 1fr; }
+        @media (min-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 350px 1fr;
+            }
         }
 
+        /* Panels styling */
         .panel {
             background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 25px;
+            border: 1px solid var(--panel-border);
+            padding: 20px;
+            border-radius: 4px;
+            position: relative;
         }
 
         .panel-title {
-            font-size: 1.2rem;
+            font-size: 14px;
+            font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 20px;
-            color: var(--accent-blue);
-            border-bottom: 1px solid var(--border-color);
             padding-bottom: 8px;
-        }
-
-        /* Регионы */
-        .region-controls {
-            margin-bottom: 25px;
-        }
-        .region-buttons {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .btn {
-            background: #1e293b;
-            border: 1px solid var(--border-color);
+            border-bottom: 1px dashed var(--panel-border);
             color: var(--text-main);
-            padding: 10px;
-            cursor: pointer;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            transition: all 0.2s;
-        }
-        .btn.active {
-            background: rgba(0, 229, 255, 0.15);
-            border-color: var(--accent-blue);
-            color: #fff;
-        }
-        .btn-all {
-            background: rgba(0, 255, 102, 0.1);
-            border-color: var(--accent-green);
+            display: flex;
+            justify-content: space-between;
         }
 
-        /* Контролы ввода */
+        /* Controls styling */
         .control-group {
             margin-bottom: 20px;
         }
-        .control-header {
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 6px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        .control-label {
-            font-size: 0.9rem;
-            color: var(--text-main);
-        }
-        .input-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .slider {
-            flex: 1;
-            -webkit-appearance: none;
-            background: #1e293b;
-            height: 6px;
-            border-radius: 3px;
-            outline: none;
-        }
-        .slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: var(--accent-green);
-            cursor: pointer;
-            box-shadow: 0 0 8px var(--accent-green);
-        }
-        .num-input {
-            width: 80px;
-            background: #1e293b;
-            border: 1px solid var(--border-color);
-            color: #fff;
-            padding: 4px 8px;
-            border-radius: 4px;
-            text-align: right;
-            font-size: 0.9rem;
         }
 
-        /* Дисплей метрик */
-        .metric-display {
+        .control-label span.val {
+            color: var(--accent-blue);
+            font-weight: bold;
+        }
+
+        .input-slider {
+            width: 100%;
+            height: 6px;
+            background: #181824;
+            outline: none;
+            -webkit-appearance: none;
+            border-radius: 3px;
+        }
+
+        .input-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: var(--accent-blue);
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .input-slider::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            background: var(--accent-blue);
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        /* Region Selection Buttons */
+        .region-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 25px;
-        }
-        .metric-box {
-            background: #0a0a0c;
-            border: 1px solid var(--border-color);
-            padding: 20px;
-            border-radius: 4px;
-            text-align: center;
-        }
-        .metric-val {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: var(--accent-green);
-            margin-top: 5px;
-        }
-        .metric-val.blue { color: var(--accent-blue); }
-        .metric-lbl {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
+            gap: 8px;
+            margin-top: 10px;
         }
 
-        .saturation-warning {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid #ef4444;
-            color: #fca5a5;
+        .region-btn {
+            background: #14141c;
+            border: 1px solid var(--panel-border);
+            color: var(--text-muted);
+            padding: 8px;
+            font-size: 10px;
+            cursor: pointer;
+            text-align: left;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+
+        .region-btn.active {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+            background: #0d1f14;
+        }
+
+        /* Select element styling */
+        .select-input {
+            width: 100%;
+            background: #14141c;
+            border: 1px solid var(--panel-border);
+            color: var(--text-main);
+            padding: 8px;
+            font-size: 12px;
+            font-family: monospace;
+            outline: none;
+        }
+
+        /* Metrics Outputs Display */
+        .outputs-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .outputs-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .output-card {
+            background: #09090d;
+            border: 1px solid var(--panel-border);
+            padding: 15px;
+            border-radius: 2px;
+        }
+
+        .output-card.positive { border-left: 3px solid var(--accent-green); }
+        .output-card.leakage { border-left: 3px solid var(--accent-red); }
+        .output-card.info { border-left: 3px solid var(--accent-blue); }
+
+        .output-num {
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 5px;
+            letter-spacing: -0.5px;
+        }
+        .positive .output-num { color: var(--accent-green); }
+        .leakage .output-num { color: var(--accent-red); }
+        .info .output-num { color: var(--accent-blue); }
+
+        .output-desc {
+            font-size: 10px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+
+        /* Chart Canvas wrapper */
+        .chart-wrapper {
+            margin-top: 25px;
+            background: #09090d;
+            border: 1px solid var(--panel-border);
+            padding: 15px;
+            position: relative;
+        }
+
+        canvas {
+            width: 100%;
+            height: 280px;
+            display: block;
+        }
+
+        /* Breakdown lists */
+        .breakdown-list {
+            margin-top: 10px;
+            font-size: 11px;
+        }
+        .breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid #111116;
+        }
+        .breakdown-row span.lbl { color: var(--text-muted); }
+        .breakdown-row span.num { color: var(--text-main); font-weight: bold; }
+
+        /* Notification boxes */
+        .alert-box {
+            background: #241411;
+            border: 1px solid var(--accent-red);
+            color: #ff88a8;
             padding: 12px;
-            border-radius: 4px;
-            font-size: 0.85rem;
+            font-size: 11px;
             margin-top: 15px;
             display: none;
-            text-align: center;
         }
 
-        /* Методология */
-        .methodology {
-            margin-top: 40px;
-            border-top: 1px dashed var(--border-color);
-            padding-top: 30px;
+        .alert-box.amber {
+            background: #241a11;
+            border: 1px solid var(--accent-amber);
+            color: #ffd288;
         }
-        .formula-block {
-            background: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
+
+        /* Formula spec footer */
+        .tech-spec-trigger {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-muted);
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: underline;
         }
-        .formula-code {
-            color: var(--accent-blue);
-            display: block;
-            margin-top: 5px;
-            font-size: 0.85rem;
+
+        .tech-spec-panel {
+            margin-top: 20px;
+            background: #09090d;
+            border: 1px solid var(--panel-border);
+            padding: 20px;
+            font-size: 11px;
+            color: var(--text-muted);
+            display: none;
         }
+        .tech-spec-panel h3 { color: var(--text-main); margin-bottom: 10px; font-size: 12px; text-transform: uppercase; }
+        .tech-spec-panel code { display: block; background: #14141c; padding: 8px; margin: 8px 0; color: #a5b4fc; overflow-x: auto; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>ANTIMATTER // CORE MARKET SIMULATOR</h1>
-        <p style="color: var(--text-muted); margin-top: 5px;">[ Phase 4 Optimization Engine // Thiel Fellowship Presentation ]</p>
+        <div>
+            <h1>ANTIMATTER // <span>MARKET PENETRATION ENGINE</span></h1>
+        </div>
+        <div class="system-status">
+            SYSTEM STATUS: OPERATIONAL // TIME-SERIES MODEL V2.0<br>
+            PLATFORM: SAAS-AS-AN-INTELLIGENCE (SaaI)
+        </div>
     </header>
 
-    <div class="notice-banner">
-        <strong>⚠️ SYSTEM NOTICE (Gross Revenue Track):</strong> Данный симулятор рассчитывает чистую ценность инфраструктуры и валовый доход компании. Операционные расходы на содержание серверов и Docker-контейнеров ничтожно малы (менее $50/мес на старте) и не оказывают математического влияния на траекторию масштабирования ядра Antimatter.
+    <div class="dashboard-grid">
+        <div class="sidebar-controls">
+            
+            <div class="panel" style="margin-bottom: 20px;">
+                <div class="panel-title">
+                    <span>1. Internal Locus</span>
+                    <span style="color: var(--accent-green);">100% CONTROL</span>
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Distribution Cells</span>
+                        <span class="val" id="val-cells">25</span>
+                    </div>
+                    <input type="range" id="input-cells" class="input-slider" min="1" max="100" value="25">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>PaaS Products in Suite</span>
+                        <span class="val" id="val-products">3</span>
+                    </div>
+                    <input type="range" id="input-products" class="input-slider" min="1" max="10" value="3">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Our Take Rate (P_take)</span>
+                        <span class="val" id="val-ptake">10%</span>
+                    </div>
+                    <input type="range" id="input-ptake" class="input-slider" min="1" max="90" value="10">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Free Trial Duration</span>
+                        <span class="val" id="val-trial">14 Days</span>
+                    </div>
+                    <input type="range" id="input-trial" class="input-slider" min="0" max="30" value="14">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Pre-set Unbundling Coeff.</span>
+                        <span class="val" id="val-unbundle">1.8x</span>
+                    </div>
+                    <input type="range" id="input-unbundle" class="input-slider" min="10" max="30" value="18" step="1">
+                </div>
+            </div>
+
+            <div class="panel" style="margin-bottom: 20px;">
+                <div class="panel-title">
+                    <span>2. Partial Locus</span>
+                    <span style="color: var(--accent-amber);">PARTIAL INFLUENCE</span>
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Cross-Sell Efficiency</span>
+                        <span class="val" id="val-cross">60%</span>
+                    </div>
+                    <input type="range" id="input-cross" class="input-slider" min="0" max="100" value="60">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Planning Horizon Interval</span>
+                        <span class="val" id="val-horizon">12</span>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="range" id="input-horizon" class="input-slider" min="1" max="60" value="12" style="flex: 1;">
+                        <select id="input-timeunit" class="select-input" style="width: 90px;">
+                            <option value="days">Days</option>
+                            <option value="months" selected>Months</option>
+                            <option value="years">Years</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-title">
+                    <span>3. Zero Locus</span>
+                    <span style="color: var(--accent-red);">MACRO ENVIRONMENT</span>
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Human Resource Load (L)</span>
+                        <span class="val" style="color: var(--text-muted);">80% (Fixed)</span>
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted); background: #14141c; padding: 6px; border: 1px solid var(--panel-border);">
+                        Standard 0.8 structural factor accounting for employee waste, sick leaves, administrative overhead.
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Target Geography (Continents)</span>
+                    </div>
+                    <div class="region-grid">
+                        <button class="region-btn active" data-region="na">North America</button>
+                        <button class="region-btn" data-region="eu">Europe</button>
+                        <button class="region-btn" data-region="as">Asia</button>
+                        <button class="region-btn" data-region="sa">South America</button>
+                        <button class="region-btn" data-region="af">Africa</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="main-outputs">
+            
+            <div id="alert-saturation" class="alert-box">
+                [CRITICAL PLATEO REACHED]: The active target market has been fully depleted of un-automated businesses. Processing cells are idling.
+            </div>
+            <div id="alert-unbundled-active" class="alert-box amber">
+                [NOTICE]: Market saturation limits bypassed via pre-set Unbundling product fragmentation. Core system processing sub-value loops.
+            </div>
+
+            <div class="panel" style="margin-bottom: 25px;">
+                <div class="panel-title">Group A: Realized Capital Capture & Impact (Within Horizon)</div>
+                <div class="outputs-container">
+                    <div class="output-card positive">
+                        <div class="output-desc">Antimatter Accumulated Revenue</div>
+                        <div class="output-num" id="out-revenue">$0</div>
+                    </div>
+                    <div class="output-card positive">
+                        <div class="output-desc">Total Client Value Generated</div>
+                        <div class="output-num" id="out-client-value">$0</div>
+                    </div>
+                    <div class="output-card positive">
+                        <div class="output-desc">Active Transformed FTEs</div>
+                        <div class="output-num" id="out-active-fte">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel" style="margin-bottom: 25px;">
+                <div class="panel-title">Group B: Dynamic Pipeline & Leakage Tracking</div>
+                <div class="outputs-container">
+                    <div class="output-card info">
+                        <div class="output-desc">Deferred Trial Pipeline</div>
+                        <div class="output-num" id="out-deferred-pipeline">$0</div>
+                    </div>
+                    <div class="output-card leakage">
+                        <div class="output-desc">Lost via Trial Conversions Drop</div>
+                        <div class="output-num" id="out-leak-trial">$0</div>
+                    </div>
+                    <div class="output-card leakage">
+                        <div class="output-desc">Lost via Pricing Elasticity</div>
+                        <div class="output-num" id="out-leak-tariff">$0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-title">Group C: Market Availability & Velocity Projections</div>
+                <div class="outputs-container">
+                    <div class="output-card info">
+                        <div class="output-desc">Saturation Plateau Forecast</div>
+                        <div class="output-num" id="out-plateau-time">Never</div>
+                    </div>
+                    <div class="output-card info">
+                        <div class="output-desc">Processing Capture Velocity</div>
+                        <div class="output-num" id="out-velocity">0 / day</div>
+                    </div>
+                    <div class="output-card leakage">
+                        <div class="output-desc">Global Inefficiency Burn Rate</div>
+                        <div class="output-num" id="out-global-burn">$0 / mo</div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; border-top: 1px dashed var(--panel-border); padding-top: 15px;">
+                    <div>
+                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 5px;">Remaining Available Companies:</div>
+                        <div class="breakdown-list">
+                            <div class="breakdown-row"><span class="lbl">Small B2B (1-5 staff)</span><span class="num" id="break-rem-small">0</span></div>
+                            <div class="breakdown-row"><span class="lbl">Medium B2B (6-50 staff)</span><span class="num" id="break-rem-med">0</span></div>
+                            <div class="breakdown-row"><span class="lbl">Enterprise (51-500 staff)</span><span class="num" id="break-rem-ent">0</span></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 5px;">Time-Series Status Log:</div>
+                        <div class="breakdown-list">
+                            <div class="breakdown-row"><span class="lbl">Total Simulation Horizon</span><span class="num" id="log-horizon-days">0 days</span></div>
+                            <div class="breakdown-row"><span class="lbl">Saturation Status</span><span class="num" id="log-saturation-status" style="color: var(--accent-green);">UNSATURATED</span></div>
+                            <div class="breakdown-row"><span class="lbl">Time to 100% Depletion</span><span class="num" id="log-depletion-time">0 days</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-wrapper">
+                <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px;">Antimatter Cumulative Revenue Timeline Graph</div>
+                <canvas id="revenueChart"></canvas>
+            </div>
+
+        </div>
     </div>
 
-    <div class="grid-layout">
-        <div class="panel">
-            <div class="panel-title">1. Параметры Моделирования</div>
-            
-            <div class="region-controls">
-                <span class="control-label">Выбор целевых регионов (Плато суммируется):</span>
-                <div class="region-buttons">
-                    <button class="btn btn-all" onclick="selectAllRegions()">[ Select All ]</button>
-                    <button class="btn region-btn active" data-limit="50000" onclick="toggleRegion(this)">Локальный</button>
-                    <button class="btn region-btn" data-limit="200000" onclick="toggleRegion(this)">СНГ / Азия</button>
-                    <button class="btn region-btn" data-limit="1500000" onclick="toggleRegion(this)">Глобальный</button>
-                </div>
-            </div>
-
-            <div class="control-group">
-                <div class="control-header">
-                    <span class="control-label">Количество ячеек (Интеграций):</span>
-                </div>
-                <div class="input-wrapper">
-                    <input type="range" id="cells-range" class="slider" min="1" max="100" value="5" oninput="syncInput('cells')">
-                    <input type="number" id="cells-num" class="num-input" min="1" max="100" value="5" onchange="syncSlider('cells')">
-                </div>
-            </div>
-
-            <div class="control-group">
-                <div class="control-header">
-                    <span class="control-label">Количество процессов/продуктов на ячейку:</span>
-                </div>
-                <div class="input-wrapper">
-                    <input type="range" id="products-range" class="slider" min="1" max="20" value="3" oninput="syncInput('products')">
-                    <input type="number" id="products-num" class="num-input" min="1" max="20" value="3" onchange="syncSlider('products')">
-                </div>
-            </div>
-
-            <div class="control-group">
-                <div class="control-header">
-                    <span class="control-label">Наш тариф (% от созданной ценности):</span>
-                </div>
-                <div class="input-wrapper">
-                    <input type="range" id="fee-range" class="slider" min="5" max="30" value="10" oninput="syncInput('fee')">
-                    <input type="number" id="fee-num" class="num-input" min="5" max="30" value="10" onchange="syncSlider('fee')">
-                </div>
-            </div>
-
-            <div class="control-group">
-                <div class="control-header">
-                    <span class="control-label">% Захваченного рынка (Питч-метрика):</span>
-                </div>
-                <div class="input-wrapper">
-                    <input type="range" id="share-range" class="slider" min="0.1" max="100" step="0.1" value="1" oninput="syncInput('share')">
-                    <input type="number" id="share-num" class="num-input" min="0.1" max="100" step="0.1" value="1" onchange="syncSlider('share')">
-                </div>
-            </div>
-
-            <div class="control-group" id="unbundle-container">
-                <div class="control-header">
-                    <span class="control-label">Дробление услуг (Unbundling Index):</span>
-                </div>
-                <div class="input-wrapper">
-                    <input type="range" id="unbundle-range" class="slider" min="1.0" max="2.5" step="0.1" value="1.0" oninput="syncInput('unbundle')">
-                    <input type="number" id="unbundle-num" class="num-input" min="1" max="2.5" step="0.1" value="1.0" onchange="syncSlider('unbundle')">
-                </div>
-            </div>
-        </div>
-
-        <div class="panel">
-            <div class="panel-title">2. Выходные Метрики (Эффект)</div>
-            
-            <div class="metric-display">
-                <div class="metric-box">
-                    <div class="metric-lbl">Ценность для клиентов</div>
-                    <div class="metric-val blue" id="client-value">$0</div>
-                </div>
-                <div class="metric-box">
-                    <div class="metric-lbl">Выручка Antimatter</div>
-                    <div class="metric-val" id="our-revenue">$0</div>
-                </div>
-            </div>
-
-            <div class="metric-display">
-                <div class="metric-box">
-                    <div class="metric-lbl">Текущий лимит плато</div>
-                    <div class="metric-val blue" id="plateau-limit">$0</div>
-                </div>
-                <div class="metric-box">
-                    <div class="metric-lbl">Потенциал масштаба</div>
-                    <div class="metric-val" id="scale-potential">$0</div>
-                </div>
-            </div>
-
-            <div class="metric-display" style="border-top: 1px dashed var(--border-color); padding-top: 20px;">
-                <div class="metric-box">
-                    <div class="metric-lbl">Высвобожденный штат (FTE)</div>
-                    <div class="metric-val blue" id="fte-saved">0</div>
-                </div>
-                <div class="metric-box">
-                    <div class="metric-lbl">Штат Поддержки Antimatter</div>
-                    <div class="metric-val" id="our-support">0 чел.</div>
-                </div>
-            </div>
-
-            <div class="saturation-warning" id="sat-warning">
-                [ CRITICAL NOTICE: MARKET SATURATION LIMIT HIT ]<br>
-                Вы уперлись в текущее плато рынка. Для пробития потолка задействуйте ползунок «Дробление услуг» для монетизации сопутствующих SaaS-микромодулей.
-            </div>
-        </div>
-    </div>
-
-    <div class="methodology">
-        <div class="panel-title">3. Открытая методология расчетов (Open Math)</div>
-        
-        <div class="formula-block">
-            <strong>Генерация ценности для инфраструктуры клиента (Client Value Generation):</strong>
-            Каждая интеграция экономит рабочие часы сотрудников за счет автоматизации триадой агентов. Берется базовая ставка $25/час и ~40 сохраненных часов на один автоматизированный процесс.
-            <span class="formula-code">Формула: Ценность = Ячейки × Продукты × 40 ч/мес × $25/час</span>
-        </div>
-
-        <div class="formula-block">
-            <strong>Базовая выручка компании (Base Gross Revenue):</strong>
-            Доля чистой ценности, которую ядро Antimatter забирает в качестве инфраструктурного тарифа.
-            <span class="formula-code">Формула: Выручка = Ценность × (Тариф % / 100)</span>
-        </div>
-
-        <div class="formula-block">
-            <strong>Высвобожденный штат клиента (Client FTE Equivalent):</strong>
-            Показывает количество полных ставок (эквивалент сотрудников), рутинную нагрузку которых полностью заменяет развернутая инфраструктура. Принято среднее рабочее время 168 ч/мес и коэффициент загрузки сотрудника L = 80%.
-            <span class="formula-code">Формула: FTE = (Ячейки × Продукты × 40 ч/мес) ÷ (168 × 0.8)</span>
-        </div>
-
-        <div class="formula-block">
-            <strong>Штат поддержки Antimatter (Support Leverage):</strong>
-            Благодаря принципу SaaI и автоматическому изолированию багов децентрализованным *Error Workflow*, один наш интегратор способен бесперебойно администрировать до 30 ячеек параллельно.
-            <span class="formula-code">Формула: Поддержка = Math.ceil(Ячейки / 30)</span>
-        </div>
-
-        <div class="formula-block">
-            <strong>Динамическое плато насыщения (Dynamic Market Saturation):</strong>
-            Базовый лимит выбранных регионов масштабируется за счет коэффициента дробления услуг. Дробление сервиса позволяет извлекать прибыль даже при неизменном числе основных покупателей.
-            <span class="formula-code">Формула: Текущий Лимит = Сумма(Лимитов Регионов) × Индекс Дробления</span>
-        </div>
+    <div class="tech-spec-trigger" onclick="toggleTechSpec()">[ + ] Show Mathematical Engine Specifications (Physics of Antimatter)</div>
+    <div id="tech-spec" class="tech-spec-panel">
+        <h3>Structural Time-Series Mathematical Formulas</h3>
+        <p>This engine tracks the conversion of discrete corporate structures across continents by processing daily inflow queues through an active distribution network.</p>
+        <code>Daily Traffic Vector Capture = N_cells * 18 companies / day</code>
+        <code>FTE Saved per Firm Group = (144 routine hours / 134.4 actual working hours) * M_size_group</code>
+        <code>Cross-Sell Compound Expansion Multiplier (M_prod) = Sum_{i=1}^{N_prods} (K_cross * 0.8)^{i-1}</code>
+        <code>Macro Client Value Creation = M_size_group * 144 hours * C_h * L</code>
+        <code>Tariff Acceptability Elasticity Gradient (K_agree): Quadratic decay boundary mapped to zero compatibility index at 80% take rate factor.</code>
     </div>
 </div>
 
 <script>
-    function syncInput(id) {
-        const range = document.getElementById(`${id}-range`);
-        const num = document.getElementById(`${id}-num`);
-        num.value = range.value;
-        calculate();
+    // STRUCTURAL MACROECONOMIC ENVIRONMENT DATABASES (ZERO LOCUS)
+    const CONTINENT_DB = {
+        na: {
+            name: "North America",
+            totalFirms: 35000000,
+            ch: 35, // Average cost of hour
+            dist: { small: 0.80, med: 0.18, ent: 0.02 },
+            mSize: { small: 3, med: 28, ent: 275.5 }
+        },
+        eu: {
+            name: "Europe",
+            totalFirms: 30000000,
+            ch: 28,
+            dist: { small: 0.85, med: 0.14, ent: 0.01 },
+            mSize: { small: 3, med: 28, ent: 275.5 }
+        },
+        as: {
+            name: "Asia",
+            totalFirms: 75000000,
+            ch: 8,
+            dist: { small: 0.70, med: 0.25, ent: 0.05 },
+            mSize: { small: 3, med: 28, ent: 275.5 }
+        },
+        sa: {
+            name: "South America",
+            totalFirms: 15000000,
+            ch: 10,
+            dist: { small: 0.87, med: 0.122, ent: 0.008 },
+            mSize: { small: 3, med: 28, ent: 275.5 }
+        },
+        af: {
+            name: "Africa",
+            totalFirms: 10000000,
+            ch: 6,
+            dist: { small: 0.91, med: 0.087, ent: 0.003 },
+            mSize: { small: 3, med: 28, ent: 275.5 }
+        }
+    };
+
+    // Global App Configuration State
+    let activeRegions = new Set(['na']);
+
+    // UI Element Selections
+    const sliders = {
+        cells: document.getElementById('input-cells'),
+        products: document.getElementById('input-products'),
+        ptake: document.getElementById('input-ptake'),
+        trial: document.getElementById('input-trial'),
+        unbundle: document.getElementById('input-unbundle'),
+        cross: document.getElementById('input-cross'),
+        horizon: document.getElementById('input-horizon')
+    };
+
+    const valLabels = {
+        cells: document.getElementById('val-cells'),
+        products: document.getElementById('val-products'),
+        ptake: document.getElementById('val-ptake'),
+        trial: document.getElementById('val-trial'),
+        unbundle: document.getElementById('val-unbundle'),
+        cross: document.getElementById('val-cross'),
+        horizon: document.getElementById('val-horizon')
+    };
+
+    const timeUnitSelect = document.getElementById('input-timeunit');
+    const canvas = document.getElementById('revenueChart');
+    const ctx = canvas.getContext('2d');
+
+    // Attach Input Event Listeners
+    Object.keys(sliders).forEach(key => {
+        sliders[key].addEventListener('input', runSimulation);
+    });
+    timeUnitSelect.addEventListener('change', runSimulation);
+
+    // Setup Geo Region Buttons
+    document.querySelectorAll('.region-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const reg = e.target.getAttribute('data-region');
+            if (activeRegions.has(reg)) {
+                if (activeRegions.size > 1) activeRegions.delete(reg);
+            } else {
+                activeRegions.add(reg);
+            }
+            // Sync active classes
+            document.querySelectorAll('.region-btn').forEach(b => {
+                const r = b.getAttribute('data-region');
+                if (activeRegions.has(r)) b.classList.add('active');
+                else b.classList.remove('active');
+            });
+            runSimulation();
+        });
+    });
+
+    // Toggle Technical Specifications Display Block
+    function toggleTechSpec() {
+        const p = document.getElementById('tech-spec');
+        p.style.display = p.style.display === 'block' ? 'none' : 'block';
     }
 
-    function syncSlider(id) {
-        const range = document.getElementById(`${id}-range`);
-        const num = document.getElementById(`${id}-num`);
+    // Convert days length integer into structured English description text block
+    function formatTimePeriod(days) {
+        if (days === Infinity || isNaN(days)) return "Never / Unsaturated";
+        let years = Math.floor(days / 365);
+        let rem = days % 365;
+        let months = Math.floor(rem / 30);
+        let d = Math.round(rem % 30);
+
+        let output = [];
+        if (years > 0) output.push(`${years}y`);
+        if (months > 0) output.push(`${months}m`);
+        if (d > 0 || output.length === 0) output.push(`${d}d`);
+        return output.join(' ');
+    }
+
+    // Non-linear Market Agreement Tariff Elasticity Function Curve
+    function getMarketAgreement(pTakePercent) {
+        let pTake = pTakePercent / 100;
+        if (pTake <= 0.02) return 0.05;
+        if (pTake >= 0.80) return 0;
         
-        if (parseFloat(num.value) > parseFloat(range.max)) num.value = range.max;
-        if (parseFloat(num.value) < parseFloat(range.min)) num.value = range.min;
-        
-        range.value = num.value;
-        calculate();
+        if (pTake <= 0.10) {
+            return 0.05 + 0.95 * ((pTake - 0.02) / 0.08);
+        } else {
+            return Math.pow(1 - (pTake - 0.10) / 0.70, 1.5);
+        }
     }
 
-    function toggleRegion(btn) {
-        btn.classList.toggle('active');
-        calculate();
-    }
+    // Main Processing Time-Series Model Core Algorithm
+    function runSimulation() {
+        // 1. Get Parameters from inputs
+        const cells = parseInt(sliders.cells.value);
+        const products = parseInt(sliders.products.value);
+        const pTakePercent = parseInt(sliders.ptake.value);
+        const trialDays = parseInt(sliders.trial.value);
+        const unbundleCoeff = parseInt(sliders.unbundle.value) / 10;
+        const crossSellEff = parseInt(sliders.cross.value) / 100;
+        const horizonInput = parseInt(sliders.horizon.value);
+        const timeUnit = timeUnitSelect.value;
 
-    function selectAllRegions() {
-        document.querySelectorAll('.region-btn').forEach(btn => btn.classList.add('active'));
-        calculate();
-    }
+        // Sync Labels
+        valLabels.cells.innerText = cells;
+        valLabels.products.innerText = products;
+        valLabels.ptake.innerText = `${pTakePercent}%`;
+        valLabels.trial.innerText = `${trialDays} Days`;
+        valLabels.unbundle.innerText = `${unbundleCoeff.toFixed(1)}x`;
+        valLabels.cross.innerText = `${(crossSellEff * 100).toFixed(0)}%`;
+        valLabels.horizon.innerText = horizonInput;
 
-    function calculate() {
-        const cells = parseInt(document.getElementById('cells-num').value) || 0;
-        const products = parseInt(document.getElementById('products-num').value) || 0;
-        const feePercent = parseFloat(document.getElementById('fee-num').value) || 0;
-        const marketShare = parseFloat(document.getElementById('share-num').value) || 0;
-        const unbundle = parseFloat(document.getElementById('unbundle-num').value) || 1.0;
+        // Calculate explicit simulation timeline horizon in days unit
+        let horizonDays = horizonInput;
+        if (timeUnit === 'months') horizonDays = horizonInput * 30;
+        if (timeUnit === 'years') horizonDays = horizonInput * 365;
+        document.getElementById('log-horizon-days').innerText = `${horizonDays} days`;
 
-        // Расчет ценности для клиентов
-        const clientValue = cells * products * 40 * 25;
-        
-        // Базовая выручка Antimatter
-        let baseRevenue = clientValue * (feePercent / 100);
+        // 2. Compile Aggregated Target Market Size Categories Capacity pools
+        let marketSmall = 0, marketMed = 0, marketEnt = 0;
+        let globalBurnRateMonthly = 0;
 
-        // Динамический лимит рынка
-        let basePlateau = 0;
-        document.querySelectorAll('.region-btn.active').forEach(btn => {
-            basePlateau += parseFloat(btn.getAttribute('data-limit'));
+        activeRegions.forEach(regId => {
+            const rData = CONTINENT_DB[regId];
+            marketSmall += rData.totalFirms * rData.dist.small;
+            marketMed += rData.totalFirms * rData.dist.med;
+            marketEnt += rData.totalFirms * rData.dist.ent;
+
+            // Calculate current macro systemic financial inefficiency burn rate inside region
+            // Total routine hours per year * employee cost index
+            let totalRegionalMngs = (rData.totalFirms * rData.dist.small * rData.mSize.small) +
+                                    (rData.totalFirms * rData.dist.med * rData.mSize.med) +
+                                    (rData.totalFirms * rData.dist.ent * rData.mSize.ent);
+            globalBurnRateMonthly += totalRegionalMngs * 144 * rData.ch * 0.8;
         });
 
-        const dynamicPlateau = basePlateau * unbundle;
+        document.getElementById('out-global-burn').innerText = `$${Math.round(globalBurnRateMonthly).toLocaleString()} / mo`;
 
-        // Проверка на достижение плато
-        const warningBox = document.getElementById('sat-warning');
-        if (baseRevenue >= dynamicPlateau && dynamicPlateau > 0) {
-            baseRevenue = dynamicPlateau;
-            warningBox.style.display = 'block';
-        } else {
-            warningBox.style.display = 'none';
+        const totalMarketCapacityFirms = marketSmall + marketMed + marketEnt;
+        const basePlateauLimitFirms = totalMarketCapacityFirms;
+        const dynamicPlateauLimitFirms = basePlateauLimitFirms * unbundleCoeff;
+
+        // Discrete processing speed parameters
+        const totalDailyProcessingCapacity = cells * 18;
+        
+        // Calculate Processing Capture Velocity output text display based on selected viewing unit
+        let trackingVelocity = totalDailyProcessingCapacity;
+        let velocityUnitLabel = "/ day";
+        if (timeUnit === 'months') { trackingVelocity = totalDailyProcessingCapacity * 30; velocityUnitLabel = "/ mo"; }
+        if (timeUnit === 'years') { trackingVelocity = totalDailyProcessingCapacity * 365; velocityUnitLabel = "/ yr"; }
+        document.getElementById('out-velocity').innerText = `${Math.round(trackingVelocity).toLocaleString()} ${velocityUnitLabel}`;
+
+        // 3. Compute Value Matrix per Corporate Target tier categories
+        // To find average weights for values, compile parameters from chosen geographies
+        let weightedCh = 0;
+        activeRegions.forEach(id => weightedCh += CONTINENT_DB[id].ch);
+        weightedCh /= activeRegions.size;
+
+        const monthlyValueMatrix = {
+            small: CONTINENT_DB.na.mSize.small * 144 * weightedCh * 0.8,
+            med: CONTINENT_DB.na.mSize.med * 144 * weightedCh * 0.8,
+            ent: CONTINENT_DB.na.mSize.ent * 144 * weightedCh * 0.8
+        };
+
+        // Cross sell expansion multiplier compound math scaling limits
+        let mProd = 0;
+        for (let i = 1; i <= products; i++) {
+            mProd += Math.pow(crossSellEff * 0.8, i - 1);
         }
 
-        const scalePotential = dynamicPlateau * (marketShare / 100);
-
-        // Расчет новых операционных метрик
-        const fteSaved = (cells * products * 40) / (168 * 0.8);
-        const supportStaff = Math.ceil(cells / 30);
-
-        // Вывод результатов
-        document.getElementById('client-value').innerText = `$${clientValue.toLocaleString()}`;
-        document.getElementById('our-revenue').innerText = `$${Math.round(baseRevenue).toLocaleString()}`;
-        document.getElementById('plateau-limit').innerText = `$${dynamicPlateau.toLocaleString()}`;
-        document.getElementById('scale-potential').innerText = `$${Math.round(scalePotential).toLocaleString()}`;
+        // Apply non-linear agreement rate modifier curves based on selected take rates
+        const kAgree = getMarketAgreement(pTakePercent);
         
-        // Вывод новых метрик
-        document.getElementById('fte-saved').innerText = fteSaved.toFixed(1);
-        document.getElementById('our-support').innerText = `${supportStaff} чел.`;
+        // Determine trial conversions dropout rate factor
+        let baseTrialChurn = 0.10 + 0.70 * Math.exp(-trialDays / 4);
+        if (trialDays > 21) {
+            baseTrialChurn += 0.10 * ((trialDays - 21) / 9);
+        }
+        // Higher pricing take rates linearly scale post-trial rejection frequencies
+        let finalTrialChurnRate = baseTrialChurn * (1 + Math.pow(pTakePercent / 40, 2));
+        if (finalTrialChurnRate > 1) finalTrialChurnRate = 1;
+        const conversionSuccessRate = 1 - finalTrialChurnRate;
+
+        // 4. Run Iterative Day-by-Day Time Series Engine Loop
+        let remSmall = marketSmall;
+        let remMed = marketMed;
+        let remEnt = marketEnt;
+
+        let activePayingClients = { small: 0, med: 0, ent: 0 };
+        
+        // Pipeline queues to track deferred free trial structures
+        let trialQueue = []; // array of items: { dayAvailable: X, countSmall: Y, countMed: Z, countEnt: W }
+
+        let accumulatedRevenue = 0;
+        let accumulatedClientValue = 0;
+        let lostRevenueLeakageTrial = 0;
+        let lostRevenueLeakageTariff = 0;
+
+        let chartPointsData = [];
+        let plateauDayReached = null;
+
+        // Absolute target breakdown weights ratios to feed capacity queues properly
+        const initialSumRatios = (marketSmall + marketMed + marketEnt);
+        const ratioSmall = marketSmall / initialSumRatios;
+        const ratioMed = marketMed / initialSumRatios;
+        const ratioEnt = marketEnt / initialSumRatios;
+
+        for (let day = 1; day <= horizonDays; day++) {
+            // Check if available ecosystem is depleted down to systemic dynamic unbundled plateau limits
+            let processedFirmsTotal = (marketSmall - remSmall) + (marketMed - remMed) + (marketEnt - remEnt);
+            
+            if (processedFirmsTotal < dynamicPlateauLimitFirms) {
+                // Calculate capacity slice for today
+                let currentDayCapacity = totalDailyProcessingCapacity;
+
+                // Allocate across corporate category reservoirs
+                let takeSmall = Math.min(remSmall, currentDayCapacity * ratioSmall);
+                currentDayCapacity -= takeSmall;
+                remSmall -= takeSmall;
+
+                let takeMed = Math.min(remMed, currentDayCapacity * ratioMed);
+                currentDayCapacity -= takeMed;
+                remMed -= takeMed;
+
+                let takeEnt = Math.min(remEnt, currentDayCapacity);
+                remEnt -= takeEnt;
+
+                // Push captured firms pool directly into deferred trial queue tracking pipelines
+                trialQueue.push({
+                    conversionDay: day + trialDays,
+                    small: takeSmall,
+                    med: takeMed,
+                    ent: takeEnt
+                });
+            } else {
+                if (plateauDayReached === null) {
+                    plateauDayReached = day;
+                }
+            }
+
+            // Process free trial pipeline queues maturity events
+            while (trialQueue.length > 0 && trialQueue[0].conversionDay === day) {
+                let cohort = trialQueue.shift();
+                
+                // Segment cohorts based on conversion elasticity matrices
+                let acceptedSmall = cohort.small * kAgree;
+                let acceptedMed = cohort.med * kAgree;
+                let acceptedEnt = cohort.ent * kAgree;
+
+                // Factor out structural tariff elasticity leaks
+                let leakTariffSmall = cohort.small * (1 - kAgree);
+                let leakTariffMed = cohort.med * (1 - kAgree);
+                let leakTariffEnt = cohort.ent * (1 - kAgree);
+
+                // Add converted assets into active paying pools tracking buckets
+                let convertedSmall = acceptedSmall * conversionSuccessRate;
+                let convertedMed = acceptedMed * conversionSuccessRate;
+                let convertedEnt = acceptedEnt * conversionSuccessRate;
+
+                activePayingClients.small += convertedSmall;
+                activePayingClients.med += convertedMed;
+                activePayingClients.ent += convertedEnt;
+
+                // Track continuous leakage values
+                let droppedSmall = acceptedSmall * finalTrialChurnRate;
+                let droppedMed = acceptedMed * finalTrialChurnRate;
+                let droppedEnt = acceptedEnt * finalTrialChurnRate;
+
+                // Calculate lifelong dynamic leaks metrics matching current values
+                let singleCompanyValSmall = (monthlyValueMatrix.small / 30) * mProd;
+                let singleCompanyValMed = (monthlyValueMatrix.med / 30) * mProd;
+                let singleCompanyValEnt = (monthlyValueMatrix.ent / 30) * mProd;
+
+                lostRevenueLeakageTrial += (droppedSmall * singleCompanyValSmall + droppedMed * singleCompanyValMed + droppedEnt * singleCompanyValEnt) * (pTakePercent / 100) * (horizonDays - day);
+                lostRevenueLeakageTariff += (leakTariffSmall * singleCompanyValSmall + leakTariffMed * singleCompanyValMed + leakTariffEnt * singleCompanyValEnt) * (pTakePercent / 100) * (horizonDays - day);
+            }
+
+            // Calculate daily generated recurring monetization pools values
+            let dailyRevenue = 0;
+            let dailyClientValue = 0;
+
+            // Small business contribution variables
+            let revSmall = activePayingClients.small * (monthlyValueMatrix.small / 30) * mProd;
+            dailyClientValue += activePayingClients.small * (monthlyValueMatrix.small / 30) * mProd;
+            dailyRevenue += revSmall * (pTakePercent / 100);
+
+            // Medium business contribution variables
+            let revMed = activePayingClients.med * (monthlyValueMatrix.med / 30) * mProd;
+            dailyClientValue += activePayingClients.med * (monthlyValueMatrix.med / 30) * mProd;
+            dailyRevenue += revMed * (pTakePercent / 100);
+
+            // Enterprise business contribution variables
+            let revEnt = activePayingClients.ent * (monthlyValueMatrix.ent / 30) * mProd;
+            dailyClientValue += activePayingClients.ent * (monthlyValueMatrix.ent / 30) * mProd;
+            dailyRevenue += revEnt * (pTakePercent / 100);
+
+            accumulatedRevenue += dailyRevenue;
+            accumulatedClientValue += dailyClientValue;
+
+            chartPointsData.push(accumulatedRevenue);
+        }
+
+        // 5. Calculate and compile Deferred Revenue Pipeline running data
+        let deferredRevenuePipelineTotal = 0;
+        trialQueue.forEach(cohort => {
+            let potentialDailyValue = (cohort.small * (monthlyValueMatrix.small / 30) +
+                                       cohort.med * (monthlyValueMatrix.med / 30) +
+                                       cohort.ent * (monthlyValueMatrix.ent / 30)) * mProd * (pTakePercent / 100) * kAgree * conversionSuccessRate;
+            // Project the pipeline value for a standard month cycle validation
+            deferredRevenuePipelineTotal += potentialDailyValue * 30;
+        });
+
+        // 6. Project time vector required for absolute ecosystem depletion matching criteria
+        let activeMarketDepletionDaysForecast = Infinity;
+        let totalFirmsRemaining = remSmall + remMed + remEnt;
+        if (totalDailyProcessingCapacity > 0) {
+            activeMarketDepletionDaysForecast = totalFirmsRemaining / totalDailyProcessingCapacity;
+        }
+
+        // Render calculated interface output fields
+        document.getElementById('out-revenue').innerText = `$${Math.round(accumulatedRevenue).toLocaleString()}`;
+        document.getElementById('out-client-value').innerText = `$${Math.round(accumulatedClientValue).toLocaleString()}`;
+        
+        // Calculate Total Active Active transformed FTE instances delivered globally
+        let currentTotalTransformedFTEs = (activePayingClients.small * 1.0714 * CONTINENT_DB.na.mSize.small) +
+                                          (activePayingClients.med * 1.0714 * CONTINENT_DB.na.mSize.med) +
+                                          (activePayingClients.ent * 1.0714 * CONTINENT_DB.na.mSize.ent);
+        document.getElementById('out-active-fte').innerText = Math.round(currentTotalTransformedFTEs).toLocaleString();
+
+        document.getElementById('out-deferred-pipeline').innerText = `$${Math.round(deferredRevenuePipelineTotal).toLocaleString()}`;
+        document.getElementById('out-leak-trial').innerText = `$${Math.round(lostRevenueLeakageTrial).toLocaleString()}`;
+        document.getElementById('out-leak-tariff').innerText = `$${Math.round(lostRevenueLeakageTariff).toLocaleString()}`;
+
+        // Map Saturation Plateau state visual updates
+        const statusBox = document.getElementById('log-saturation-status');
+        if (plateauDayReached !== null || ( (marketSmall-remSmall)+(marketMed-remMed)+(marketEnt-remEnt) ) >= basePlateauLimitFirms) {
+            statusBox.innerText = "SATURATED";
+            statusBox.style.color = "var(--accent-red)";
+            document.getElementById('alert-saturation').style.display = "block";
+            
+            if (unbundleCoeff > 1.0) {
+                document.getElementById('alert-unbundled-active').style.display = "block";
+            } else {
+                document.getElementById('alert-unbundled-active').style.display = "none";
+            }
+        } else {
+            statusBox.innerText = "UNSATURATED";
+            statusBox.style.color = "var(--accent-green)";
+            document.getElementById('alert-saturation').style.display = "none";
+            document.getElementById('alert-unbundled-active').style.display = "none";
+        }
+
+        // Format and render plateau events intervals metrics
+        let displayPlateauDay = plateauDayReached !== null ? plateauDayReached : activeMarketDepletionDaysForecast;
+        document.getElementById('out-plateau-time').innerText = formatTimePeriod(displayPlateauDay);
+        document.getElementById('log-depletion-time').innerText = `${Math.round(activeMarketDepletionDaysForecast)} days`;
+
+        // Render remaining business pools elements breakdown
+        document.getElementById('break-rem-small').innerText = Math.round(remSmall).toLocaleString();
+        document.getElementById('break-rem-med').innerText = Math.round(remMed).toLocaleString();
+        document.getElementById('break-rem-ent').innerText = Math.round(remEnt).toLocaleString();
+
+        // Draw structural dashboard canvas layout plots lines
+        renderChartGraphic(chartPointsData);
     }
 
-    calculate();
+    // Custom lightweight native High-Fidelity canvas rendering chart execution tool
+    function renderChartGraphic(dataPoints) {
+        const width = canvas.offsetWidth;
+        const height = canvas.offsetHeight;
+        canvas.width = width * window.devicePixelRatio;
+        canvas.height = height * window.devicePixelRatio;
+        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+        ctx.clearRect(0, 0, width, height);
+
+        // Drawing grid parameters
+        ctx.strokeStyle = '#161622';
+        ctx.lineWidth = 1;
+        const gridLinesCount = 5;
+        for (let i = 1; i < gridLinesCount; i++) {
+            let y = (height / gridLinesCount) * i;
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(width, y);
+            ctx.stroke();
+        }
+
+        if (dataPoints.length === 0) return;
+
+        // Map layout configurations data scaling coordinates
+        const maxVal = Math.max(...dataPoints, 10000);
+        const paddingRight = 20;
+        const paddingTop = 20;
+        const graphHeight = height - paddingTop - 10;
+
+        ctx.beginPath();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#00ff66';
+
+        for (let i = 0; i < dataPoints.length; i++) {
+            let x = (width / dataPoints.length) * i;
+            let y = height - ((dataPoints[i] / maxVal) * graphHeight) - 5;
+            
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        // Fill background area under timeline revenue plots line
+        ctx.lineTo(width, height);
+        ctx.lineTo(0, height);
+        ctx.fillStyle = 'rgba(0, 255, 102, 0.02)';
+        ctx.fill();
+    }
+
+    // Run Initial execution triggers
+    runSimulation();
+    
+    // Smooth responsive rendering canvas re-trigger layout events updates
+    window.addEventListener('resize', () => {
+        runSimulation();
+    });
 </script>
+
 </body>
 </html>
