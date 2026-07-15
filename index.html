@@ -14,7 +14,7 @@
             --accent-red: #ff3366;
             --accent-amber: #ffaa00;
             --text-main: #f1f5f9;
-            --text-muted: #94a3b8; /* Lightened by 1-2 tones for better contrast */
+            --text-muted: #cbd5e1; /* Осветлен на 2 тона для идеального контраста на темном фоне */
         }
 
         * {
@@ -29,7 +29,7 @@
             color: var(--text-main);
             padding: 30px 15px;
             line-height: 1.6;
-            font-size: 14px; /* Base font size increased */
+            font-size: 14px; /* Базовый размер шрифта увеличен */
         }
 
         .container {
@@ -119,7 +119,7 @@
 
         .explainer {
             font-size: 12px;
-            color: var(--text-muted);
+            color: var(--text-muted); /* Текст подсказок увеличен и осветлен */
             margin-bottom: 10px;
             line-height: 1.4;
         }
@@ -353,16 +353,14 @@
             <h1>ANTIMATTER // <span>MARKET PENETRATION ENGINE</span></h1>
         </div>
         <div class="system-status">
-            SYSTEM STATUS: OPERATIONAL // TIME-SERIES MODEL V3.0<br>
+            SYSTEM STATUS: OPERATIONAL // TIME-SERIES MODEL V3.1<br>
             PLATFORM: SAAS-AS-AN-INTELLIGENCE (SaaI)
         </div>
     </header>
 
     <div class="dashboard-grid">
-        <!-- LEFT SIDEBAR: CONTROLS BY LOCUS OF CONTROL -->
         <div class="sidebar-controls">
             
-            <!-- GROUP 1: INTERNAL LOCUS OF CONTROL -->
             <div class="panel" style="margin-bottom: 20px;">
                 <div class="panel-title">
                     <span>1. Internal Locus</span>
@@ -371,7 +369,7 @@
                 
                 <div class="control-group">
                     <div class="control-label">Distribution Cells</div>
-                    <div class="explainer">The number of operational automation units (cells) actively acquiring and processing un-automated companies.</div>
+                    <div class="explainer">The number of operational automation units (cells) actively acquiring and processing un-automated companies. Can be entered directly.</div>
                     <div class="control-row">
                         <input type="range" id="range-cells" class="input-slider" min="1" max="100" value="25">
                         <input type="number" id="num-cells" class="number-input" min="1" max="100" value="25">
@@ -415,7 +413,6 @@
                 </div>
             </div>
 
-            <!-- GROUP 2: PARTIAL LOCUS OF CONTROL -->
             <div class="panel" style="margin-bottom: 20px;">
                 <div class="panel-title">
                     <span>2. Partial Locus</span>
@@ -446,7 +443,6 @@
                 </div>
             </div>
 
-            <!-- GROUP 3: ZERO LOCUS OF CONTROL -->
             <div class="panel">
                 <div class="panel-title">
                     <span>3. Zero Locus</span>
@@ -478,10 +474,8 @@
 
         </div>
 
-        <!-- MAIN MAINBOARD OUTPUTS -->
         <div class="main-outputs">
             
-            <!-- ALERTS SECTION -->
             <div id="alert-saturation" class="alert-box">
                 <strong>[CRITICAL PLATEAU REACHED]</strong><br>The active target market has been fully depleted of un-automated businesses. Processing cells are idling.
             </div>
@@ -489,7 +483,6 @@
                 <strong>[NOTICE]</strong><br>Market saturation limits bypassed via pre-set Unbundling product fragmentation. Core system is now processing adjacent sub-value loops.
             </div>
 
-            <!-- OUTPUT SECTION A: REALIZED VALUE CAPTURE -->
             <div class="panel" style="margin-bottom: 25px;">
                 <div class="panel-title">Group A: Realized Capital Capture & Impact (Within Horizon)</div>
                 <div class="outputs-container">
@@ -508,7 +501,6 @@
                 </div>
             </div>
 
-            <!-- OUTPUT SECTION B: OPPORTUNITY LEAKAGE & PIPELINE -->
             <div class="panel" style="margin-bottom: 25px;">
                 <div class="panel-title">Group B: Dynamic Pipeline & Leakage Tracking</div>
                 <div class="outputs-container">
@@ -527,7 +519,6 @@
                 </div>
             </div>
 
-            <!-- OUTPUT SECTION C: REMAINING TAM & PROJECTIONS -->
             <div class="panel">
                 <div class="panel-title">Group C: Market Availability & Velocity Projections</div>
                 <div class="outputs-container">
@@ -565,7 +556,6 @@
                 </div>
             </div>
 
-            <!-- INCOME TIMELINE GRAPH CHART -->
             <div class="chart-wrapper">
                 <div style="font-size: 13px; text-transform: uppercase; color: var(--text-main); margin-bottom: 15px; font-weight: bold;">
                     Antimatter Cumulative Revenue Timeline (X: Time, Y: USD)
@@ -576,7 +566,6 @@
         </div>
     </div>
 
-    <!-- FOOTER MATH SPECIFICATIONS -->
     <div class="tech-spec-trigger" onclick="toggleTechSpec()">[ + ] Show Mathematical Engine Specifications (Physics of Antimatter)</div>
     
     <div id="tech-spec" class="tech-spec-panel">
@@ -589,17 +578,22 @@
         </div>
 
         <div class="formula-block">
-            <code>V_ineff = M_size_group × 144 hours × C_h × 0.8</code>
-            <p><strong>V_ineff:</strong> Monthly absolute value of inefficiency (money burned) inside a specific company tier.</p>
+            <code>V_ineff_gross = M_size_group × 144 hours × C_h</code>
+            <p><strong>V_ineff_gross:</strong> Total nominal payroll budget allocated to manual routine before any adjustments.</p>
             <p><strong>M_size_group:</strong> Average amount of target personnel in the tier (Small, Medium, Enterprise).</p>
             <p><strong>144 hours:</strong> The standardized baseline monthly working hours.</p>
             <p><strong>C_h:</strong> Average cost of an hour of human labor in the selected geographic continent.</p>
-            <p><strong>0.8 (Locus Coefficient):</strong> The permanent "tax on human nature". Even when automated, 20% of biological inefficiency remains.</p>
+        </div>
+
+        <div class="formula-block">
+            <code>V_ineff = V_ineff_gross × 0.8</code>
+            <p><strong>V_ineff:</strong> Monthly absolute value of inefficiency (money saved) inside a specific company tier after automation.</p>
+            <p><strong>0.8 (Locus Coefficient):</strong> The permanent "tax on human nature". Even when automated, 20% of biological inefficiency remains in human processes.</p>
         </div>
 
         <div class="formula-block">
             <code>Dynamic Global Burn Rate = Initial Global Burn Rate - Σ(Active Clients × V_ineff)</code>
-            <p><strong>Dynamic Burn Rate:</strong> Unlike static models, as Antimatter acquires clients, the world physically stops burning this money. The global inefficiency pool decreases linearly by the exact amount of 80% value extracted by active software.</p>
+            <p><strong>Dynamic Burn Rate:</strong> The global inefficiency pool. It decreases linearly by the exact amount of 80% value extracted by active software, leaving a 20% human baseline at 100% saturation.</p>
         </div>
 
         <div class="formula-block">
@@ -748,6 +742,7 @@
         let marketSmall = 0, marketMed = 0, marketEnt = 0;
         let initialGlobalBurnRateMonthly = 0;
 
+        // Расчет 100% "грязной" исходной неэффективности без занижения на 0.8
         activeRegions.forEach(regId => {
             const rData = CONTINENT_DB[regId];
             marketSmall += rData.totalFirms * rData.dist.small;
@@ -757,11 +752,12 @@
             let totalRegionalMngs = (rData.totalFirms * rData.dist.small * rData.mSize.small) +
                                     (rData.totalFirms * rData.dist.med * rData.mSize.med) +
                                     (rData.totalFirms * rData.dist.ent * rData.mSize.ent);
-            initialGlobalBurnRateMonthly += totalRegionalMngs * 144 * rData.ch * 0.8;
+            initialGlobalBurnRateMonthly += totalRegionalMngs * 144 * rData.ch; // БЕЗ * 0.8
         });
 
         const totalMarketCapacityFirms = marketSmall + marketMed + marketEnt;
-        const dynamicPlateauLimitFirms = totalMarketCapacityFirms * vals.unbundle;
+        // Лимит физических компаний фиксирован и равен объему рынка. unbundle не клонирует компании.
+        const dynamicPlateauLimitFirms = totalMarketCapacityFirms; 
         const totalDailyProcessingCapacity = vals.cells * 18;
         
         let trackingVelocity = totalDailyProcessingCapacity;
@@ -774,6 +770,7 @@
         activeRegions.forEach(id => weightedCh += CONTINENT_DB[id].ch);
         weightedCh /= activeRegions.size;
 
+        // Полезная экономия ФОТ (80% от грязного ФОТ)
         const monthlyValueMatrix = {
             small: CONTINENT_DB.na.mSize.small * 144 * weightedCh * 0.8,
             med: CONTINENT_DB.na.mSize.med * 144 * weightedCh * 0.8,
@@ -854,17 +851,18 @@
                 let droppedMed = acceptedMed * finalTrialChurnRate;
                 let droppedEnt = acceptedEnt * finalTrialChurnRate;
 
-                let singleCompanyValSmall = (monthlyValueMatrix.small / 30) * mProd;
-                let singleCompanyValMed = (monthlyValueMatrix.med / 30) * mProd;
-                let singleCompanyValEnt = (monthlyValueMatrix.ent / 30) * mProd;
+                // Ценность с учетом unbundle теперь увеличивает выручку, но не клонирует компании
+                let singleCompanyValSmall = (monthlyValueMatrix.small / 30) * mProd * vals.unbundle;
+                let singleCompanyValMed = (monthlyValueMatrix.med / 30) * mProd * vals.unbundle;
+                let singleCompanyValEnt = (monthlyValueMatrix.ent / 30) * mProd * vals.unbundle;
 
                 lostRevenueLeakageTrial += (droppedSmall * singleCompanyValSmall + droppedMed * singleCompanyValMed + droppedEnt * singleCompanyValEnt) * (vals.ptake / 100);
                 lostRevenueLeakageTariff += (leakTariffSmall * singleCompanyValSmall + leakTariffMed * singleCompanyValMed + leakTariffEnt * singleCompanyValEnt) * (vals.ptake / 100);
             }
 
-            let revSmall = activePayingClients.small * (monthlyValueMatrix.small / 30) * mProd;
-            let revMed = activePayingClients.med * (monthlyValueMatrix.med / 30) * mProd;
-            let revEnt = activePayingClients.ent * (monthlyValueMatrix.ent / 30) * mProd;
+            let revSmall = activePayingClients.small * (monthlyValueMatrix.small / 30) * mProd * vals.unbundle;
+            let revMed = activePayingClients.med * (monthlyValueMatrix.med / 30) * mProd * vals.unbundle;
+            let revEnt = activePayingClients.ent * (monthlyValueMatrix.ent / 30) * mProd * vals.unbundle;
 
             let dailyClientValue = revSmall + revMed + revEnt;
             let dailyRevenue = dailyClientValue * (vals.ptake / 100);
@@ -879,17 +877,21 @@
         trialQueue.forEach(cohort => {
             let potentialDailyValue = (cohort.small * (monthlyValueMatrix.small / 30) +
                                        cohort.med * (monthlyValueMatrix.med / 30) +
-                                       cohort.ent * (monthlyValueMatrix.ent / 30)) * mProd * (vals.ptake / 100) * kAgree * conversionSuccessRate;
+                                       cohort.ent * (monthlyValueMatrix.ent / 30)) * mProd * vals.unbundle * (vals.ptake / 100) * kAgree * conversionSuccessRate;
             deferredRevenuePipelineTotal += potentialDailyValue * 30; // Project month
         });
 
-        // Dynamic Global Burn Rate Calculation
-        // It decreases precisely by the amount of biological inefficiency automated by active clients.
-        let activeAutomatedMonthlyValue = (activePayingClients.small * monthlyValueMatrix.small) +
-                                          (activePayingClients.med * monthlyValueMatrix.med) +
-                                          (activePayingClients.ent * monthlyValueMatrix.ent);
-        // Note: monthlyValueMatrix ALREADY includes the 0.8 L factor. 
-        // Thus activeAutomatedMonthlyValue is exactly the 80% chunk that is eliminated.
+        // Исправленный расчет Dynamic Global Burn Rate
+        // Ограничиваем учитываемых активных клиентов реальным объемом рынка, чтобы не уйти в минус из-за unbundle
+        let effectiveActiveSmall = Math.min(marketSmall, activePayingClients.small);
+        let effectiveActiveMed = Math.min(marketMed, activePayingClients.med);
+        let effectiveActiveEnt = Math.min(marketEnt, activePayingClients.ent);
+
+        let activeAutomatedMonthlyValue = (effectiveActiveSmall * monthlyValueMatrix.small) +
+                                          (effectiveActiveMed * monthlyValueMatrix.med) +
+                                          (effectiveActiveEnt * monthlyValueMatrix.ent);
+
+        // Из 100% "грязной" неэффективности вычитаем сэкономленные 80% ФОТ. Остается железный остаток 20%.
         let currentDynamicBurnRate = initialGlobalBurnRateMonthly - activeAutomatedMonthlyValue;
         if (currentDynamicBurnRate < 0) currentDynamicBurnRate = 0;
 
@@ -911,7 +913,7 @@
         document.getElementById('out-leak-trial').innerText = `$${formatMoney(lostRevenueLeakageTrial)}`;
         document.getElementById('out-leak-tariff').innerText = `$${formatMoney(lostRevenueLeakageTariff)}`;
 
-        // Render Dynamic Global Burn Rate
+        // Вывод динамической неэффективности на экран
         document.getElementById('out-global-burn').innerText = `$${formatMoney(currentDynamicBurnRate)} / mo`;
 
         const statusBox = document.getElementById('log-saturation-status');
@@ -950,7 +952,7 @@
 
         ctx.clearRect(0, 0, width, height);
 
-        const paddingLeft = 50;
+        const paddingLeft = 60; // Немного увеличили отступ под крупные буквенные индексы оси Y
         const paddingBottom = 25;
         const paddingTop = 15;
         const paddingRight = 15;
@@ -959,8 +961,8 @@
 
         const maxVal = Math.max(...dataPoints, 100);
 
-        // Draw Axes Background Lines and Y Labels
-        ctx.fillStyle = '#94a3b8';
+        // Цветовая палитра осей и меток (осветленный серый цвет #cbd5e1 для четкой видимости)
+        ctx.fillStyle = '#cbd5e1';
         ctx.font = '12px Courier New';
         ctx.strokeStyle = '#1a1a24';
         ctx.lineWidth = 1;
@@ -970,18 +972,18 @@
             let y = paddingTop + graphHeight - (i / gridLinesCountY) * graphHeight;
             let valY = maxVal * (i / gridLinesCountY);
             
-            // Text Y axis
+            // Отрисовка значений по оси Y
             ctx.textAlign = "right";
             ctx.fillText("$" + formatMoney(valY), paddingLeft - 10, y + 4);
             
-            // Line
+            // Вспомогательные горизонтальные линии сетки
             ctx.beginPath();
             ctx.moveTo(paddingLeft, y);
             ctx.lineTo(width - paddingRight, y);
             ctx.stroke();
         }
 
-        // Draw X Labels
+        // Отрисовка значений по оси X (Время)
         const gridLinesCountX = 4;
         for(let i = 0; i <= gridLinesCountX; i++) {
             let x = paddingLeft + (i / gridLinesCountX) * graphWidth;
@@ -992,7 +994,7 @@
 
         if (dataPoints.length === 0) return;
 
-        // Draw Data Timeline
+        // Линия графика выручки (ярко-зеленый неон)
         ctx.beginPath();
         ctx.lineWidth = 3;
         ctx.strokeStyle = '#00ff66';
@@ -1007,14 +1009,14 @@
         }
         ctx.stroke();
 
-        // Fill area under the curve
+        // Неоновая заливка под графиком
         ctx.lineTo(paddingLeft + graphWidth, paddingTop + graphHeight);
         ctx.lineTo(paddingLeft, paddingTop + graphHeight);
         ctx.fillStyle = 'rgba(0, 255, 102, 0.05)';
         ctx.fill();
         
-        // Draw Axis main lines
-        ctx.strokeStyle = '#94a3b8';
+        // Отрисовка основных контрастных рамных линий осей X и Y
+        ctx.strokeStyle = '#cbd5e1';
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(paddingLeft, paddingTop);
