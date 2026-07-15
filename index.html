@@ -14,7 +14,7 @@
             --accent-red: #ff3366;
             --accent-amber: #ffaa00;
             --text-main: #f1f5f9;
-            --text-muted: #64748b;
+            --text-muted: #94a3b8; /* Lightened by 1-2 tones for better contrast */
         }
 
         * {
@@ -28,11 +28,12 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             padding: 30px 15px;
-            line-height: 1.5;
+            line-height: 1.6;
+            font-size: 14px; /* Base font size increased */
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1500px;
             margin: 0 auto;
         }
 
@@ -46,7 +47,7 @@
         }
 
         header h1 {
-            font-size: 24px;
+            font-size: 26px;
             letter-spacing: 2px;
             color: var(--text-main);
         }
@@ -56,7 +57,7 @@
         }
 
         .system-status {
-            font-size: 12px;
+            font-size: 14px;
             color: var(--text-muted);
             text-align: right;
         }
@@ -71,7 +72,7 @@
 
         @media (min-width: 1024px) {
             .dashboard-grid {
-                grid-template-columns: 350px 1fr;
+                grid-template-columns: 420px 1fr;
             }
         }
 
@@ -79,18 +80,18 @@
         .panel {
             background-color: var(--panel-bg);
             border: 1px solid var(--panel-border);
-            padding: 20px;
+            padding: 24px;
             border-radius: 4px;
             position: relative;
         }
 
         .panel-title {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 20px;
-            padding-bottom: 8px;
+            padding-bottom: 10px;
             border-bottom: 1px dashed var(--panel-border);
             color: var(--text-main);
             display: flex;
@@ -99,7 +100,7 @@
 
         /* Controls styling */
         .control-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .control-group:last-child {
@@ -107,21 +108,30 @@
         }
 
         .control-label {
-            font-size: 11px;
+            font-size: 14px;
             text-transform: uppercase;
-            color: var(--text-muted);
+            color: var(--text-main);
             margin-bottom: 6px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
 
-        .control-label span.val {
-            color: var(--accent-blue);
-            font-weight: bold;
+        .explainer {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .control-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
         }
 
         .input-slider {
-            width: 100%;
+            flex: 1;
             height: 6px;
             background: #181824;
             outline: none;
@@ -131,26 +141,31 @@
 
         .input-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 14px;
-            height: 14px;
+            width: 16px;
+            height: 16px;
             background: var(--accent-blue);
             cursor: pointer;
             border-radius: 50%;
         }
 
-        .input-slider::-moz-range-thumb {
-            width: 14px;
-            height: 14px;
-            background: var(--accent-blue);
-            cursor: pointer;
-            border-radius: 50%;
+        .number-input {
+            width: 80px;
+            background: #14141c;
+            border: 1px solid var(--panel-border);
+            color: var(--accent-blue);
+            padding: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            outline: none;
+            border-radius: 3px;
         }
 
         /* Region Selection Buttons */
         .region-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            gap: 10px;
             margin-top: 10px;
         }
 
@@ -158,8 +173,8 @@
             background: #14141c;
             border: 1px solid var(--panel-border);
             color: var(--text-muted);
-            padding: 8px;
-            font-size: 10px;
+            padding: 10px;
+            font-size: 13px;
             cursor: pointer;
             text-align: left;
             text-transform: uppercase;
@@ -174,14 +189,16 @@
 
         /* Select element styling */
         .select-input {
-            width: 100%;
+            width: 110px;
             background: #14141c;
             border: 1px solid var(--panel-border);
-            color: var(--text-main);
-            padding: 8px;
-            font-size: 12px;
+            color: var(--accent-blue);
+            padding: 6px;
+            font-size: 14px;
+            font-weight: bold;
             font-family: monospace;
             outline: none;
+            border-radius: 3px;
         }
 
         /* Metrics Outputs Display */
@@ -200,18 +217,18 @@
         .output-card {
             background: #09090d;
             border: 1px solid var(--panel-border);
-            padding: 15px;
+            padding: 18px;
             border-radius: 2px;
         }
 
-        .output-card.positive { border-left: 3px solid var(--accent-green); }
-        .output-card.leakage { border-left: 3px solid var(--accent-red); }
-        .output-card.info { border-left: 3px solid var(--accent-blue); }
+        .output-card.positive { border-left: 4px solid var(--accent-green); }
+        .output-card.leakage { border-left: 4px solid var(--accent-red); }
+        .output-card.info { border-left: 4px solid var(--accent-blue); }
 
         .output-num {
-            font-size: 22px;
+            font-size: 26px;
             font-weight: bold;
-            margin-top: 5px;
+            margin-top: 8px;
             letter-spacing: -0.5px;
         }
         .positive .output-num { color: var(--accent-green); }
@@ -219,7 +236,7 @@
         .info .output-num { color: var(--accent-blue); }
 
         .output-desc {
-            font-size: 10px;
+            font-size: 13px;
             text-transform: uppercase;
             color: var(--text-muted);
             letter-spacing: 0.5px;
@@ -230,25 +247,25 @@
             margin-top: 25px;
             background: #09090d;
             border: 1px solid var(--panel-border);
-            padding: 15px;
+            padding: 20px;
             position: relative;
         }
 
         canvas {
             width: 100%;
-            height: 280px;
+            height: 350px;
             display: block;
         }
 
         /* Breakdown lists */
         .breakdown-list {
-            margin-top: 10px;
-            font-size: 11px;
+            margin-top: 15px;
+            font-size: 14px;
         }
         .breakdown-row {
             display: flex;
             justify-content: space-between;
-            padding: 4px 0;
+            padding: 6px 0;
             border-bottom: 1px solid #111116;
         }
         .breakdown-row span.lbl { color: var(--text-muted); }
@@ -259,10 +276,11 @@
             background: #241411;
             border: 1px solid var(--accent-red);
             color: #ff88a8;
-            padding: 12px;
-            font-size: 11px;
+            padding: 15px;
+            font-size: 14px;
             margin-top: 15px;
             display: none;
+            line-height: 1.5;
         }
 
         .alert-box.amber {
@@ -273,26 +291,58 @@
 
         /* Formula spec footer */
         .tech-spec-trigger {
-            margin-top: 30px;
+            margin-top: 40px;
             text-align: center;
-            font-size: 11px;
+            font-size: 14px;
             color: var(--text-muted);
             cursor: pointer;
             text-transform: uppercase;
             text-decoration: underline;
+            padding: 10px;
         }
 
         .tech-spec-panel {
-            margin-top: 20px;
+            margin-top: 25px;
             background: #09090d;
             border: 1px solid var(--panel-border);
-            padding: 20px;
-            font-size: 11px;
+            padding: 30px;
+            font-size: 14px;
             color: var(--text-muted);
             display: none;
         }
-        .tech-spec-panel h3 { color: var(--text-main); margin-bottom: 10px; font-size: 12px; text-transform: uppercase; }
-        .tech-spec-panel code { display: block; background: #14141c; padding: 8px; margin: 8px 0; color: #a5b4fc; overflow-x: auto; }
+        
+        .tech-spec-panel h3 { 
+            color: var(--text-main); 
+            margin-bottom: 20px; 
+            font-size: 18px; 
+            text-transform: uppercase; 
+            border-bottom: 1px solid var(--panel-border);
+            padding-bottom: 10px;
+        }
+        
+        .formula-block {
+            margin-bottom: 25px;
+            background: #14141c;
+            border-left: 3px solid var(--accent-blue);
+            padding: 15px;
+        }
+
+        .formula-block code {
+            display: block;
+            font-size: 16px;
+            color: var(--accent-blue);
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .formula-block p {
+            margin: 5px 0;
+            color: #b0c4de;
+        }
+        
+        .formula-block strong {
+            color: var(--text-main);
+        }
     </style>
 </head>
 <body>
@@ -303,14 +353,16 @@
             <h1>ANTIMATTER // <span>MARKET PENETRATION ENGINE</span></h1>
         </div>
         <div class="system-status">
-            SYSTEM STATUS: OPERATIONAL // TIME-SERIES MODEL V2.0<br>
+            SYSTEM STATUS: OPERATIONAL // TIME-SERIES MODEL V3.0<br>
             PLATFORM: SAAS-AS-AN-INTELLIGENCE (SaaI)
         </div>
     </header>
 
     <div class="dashboard-grid">
+        <!-- LEFT SIDEBAR: CONTROLS BY LOCUS OF CONTROL -->
         <div class="sidebar-controls">
             
+            <!-- GROUP 1: INTERNAL LOCUS OF CONTROL -->
             <div class="panel" style="margin-bottom: 20px;">
                 <div class="panel-title">
                     <span>1. Internal Locus</span>
@@ -318,46 +370,52 @@
                 </div>
                 
                 <div class="control-group">
-                    <div class="control-label">
-                        <span>Distribution Cells</span>
-                        <span class="val" id="val-cells">25</span>
+                    <div class="control-label">Distribution Cells</div>
+                    <div class="explainer">The number of operational automation units (cells) actively acquiring and processing un-automated companies.</div>
+                    <div class="control-row">
+                        <input type="range" id="range-cells" class="input-slider" min="1" max="100" value="25">
+                        <input type="number" id="num-cells" class="number-input" min="1" max="100" value="25">
                     </div>
-                    <input type="range" id="input-cells" class="input-slider" min="1" max="100" value="25">
                 </div>
 
                 <div class="control-group">
-                    <div class="control-label">
-                        <span>PaaS Products in Suite</span>
-                        <span class="val" id="val-products">3</span>
+                    <div class="control-label">PaaS Products in Suite</div>
+                    <div class="explainer">The total number of distinct automation products Antimatter can offer to a single client (e.g., Calling, CRM, Mailing).</div>
+                    <div class="control-row">
+                        <input type="range" id="range-products" class="input-slider" min="1" max="10" value="3">
+                        <input type="number" id="num-products" class="number-input" min="1" max="10" value="3">
                     </div>
-                    <input type="range" id="input-products" class="input-slider" min="1" max="10" value="3">
                 </div>
 
                 <div class="control-group">
-                    <div class="control-label">
-                        <span>Our Take Rate (P_take)</span>
-                        <span class="val" id="val-ptake">10%</span>
+                    <div class="control-label">Our Take Rate (P_take) (%)</div>
+                    <div class="explainer">The percentage of the client's saved payroll budget that Antimatter takes as a recurring subscription fee.</div>
+                    <div class="control-row">
+                        <input type="range" id="range-ptake" class="input-slider" min="1" max="90" value="10">
+                        <input type="number" id="num-ptake" class="number-input" min="1" max="90" value="10">
                     </div>
-                    <input type="range" id="input-ptake" class="input-slider" min="1" max="90" value="10">
                 </div>
 
                 <div class="control-group">
-                    <div class="control-label">
-                        <span>Free Trial Duration</span>
-                        <span class="val" id="val-trial">14 Days</span>
+                    <div class="control-label">Free Trial Duration (Days)</div>
+                    <div class="explainer">The length of the delayed payment pipeline. Longer trials build trust but delay realized revenue.</div>
+                    <div class="control-row">
+                        <input type="range" id="range-trial" class="input-slider" min="0" max="30" value="14">
+                        <input type="number" id="num-trial" class="number-input" min="0" max="30" value="14">
                     </div>
-                    <input type="range" id="input-trial" class="input-slider" min="0" max="30" value="14">
                 </div>
 
                 <div class="control-group">
-                    <div class="control-label">
-                        <span>Pre-set Unbundling Coeff.</span>
-                        <span class="val" id="val-unbundle">1.8x</span>
+                    <div class="control-label">Pre-set Unbundling Multiplier</div>
+                    <div class="explainer">Fragmentation coefficient: activated automatically after 100% plateau to extract sub-value from adjacent micro-niches.</div>
+                    <div class="control-row">
+                        <input type="range" id="range-unbundle" class="input-slider" min="10" max="30" value="18" step="1">
+                        <input type="number" id="num-unbundle" class="number-input" min="1.0" max="3.0" value="1.8" step="0.1">
                     </div>
-                    <input type="range" id="input-unbundle" class="input-slider" min="10" max="30" value="18" step="1">
                 </div>
             </div>
 
+            <!-- GROUP 2: PARTIAL LOCUS OF CONTROL -->
             <div class="panel" style="margin-bottom: 20px;">
                 <div class="panel-title">
                     <span>2. Partial Locus</span>
@@ -365,21 +423,21 @@
                 </div>
 
                 <div class="control-group">
-                    <div class="control-label">
-                        <span>Cross-Sell Efficiency</span>
-                        <span class="val" id="val-cross">60%</span>
+                    <div class="control-label">Cross-Sell Efficiency (%)</div>
+                    <div class="explainer">The probability that a client who bought product N will also buy product N+1. Represents ecosystem depth.</div>
+                    <div class="control-row">
+                        <input type="range" id="range-cross" class="input-slider" min="0" max="100" value="60">
+                        <input type="number" id="num-cross" class="number-input" min="0" max="100" value="60">
                     </div>
-                    <input type="range" id="input-cross" class="input-slider" min="0" max="100" value="60">
                 </div>
 
                 <div class="control-group">
-                    <div class="control-label">
-                        <span>Planning Horizon Interval</span>
-                        <span class="val" id="val-horizon">12</span>
-                    </div>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <input type="range" id="input-horizon" class="input-slider" min="1" max="60" value="12" style="flex: 1;">
-                        <select id="input-timeunit" class="select-input" style="width: 90px;">
+                    <div class="control-label">Planning Horizon</div>
+                    <div class="explainer">The total time period over which the simulation calculates market penetration and financial metrics.</div>
+                    <div class="control-row">
+                        <input type="range" id="range-horizon" class="input-slider" min="1" max="120" value="12">
+                        <input type="number" id="num-horizon" class="number-input" min="1" max="120" value="12">
+                        <select id="select-timeunit" class="select-input">
                             <option value="days">Days</option>
                             <option value="months" selected>Months</option>
                             <option value="years">Years</option>
@@ -388,6 +446,7 @@
                 </div>
             </div>
 
+            <!-- GROUP 3: ZERO LOCUS OF CONTROL -->
             <div class="panel">
                 <div class="panel-title">
                     <span>3. Zero Locus</span>
@@ -397,17 +456,16 @@
                 <div class="control-group">
                     <div class="control-label">
                         <span>Human Resource Load (L)</span>
-                        <span class="val" style="color: var(--text-muted);">80% (Fixed)</span>
+                        <span style="color: var(--accent-blue); font-weight: bold;">80% (Fixed)</span>
                     </div>
-                    <div style="font-size: 11px; color: var(--text-muted); background: #14141c; padding: 6px; border: 1px solid var(--panel-border);">
-                        Standard 0.8 structural factor accounting for employee waste, sick leaves, administrative overhead.
+                    <div class="explainer" style="background: #14141c; padding: 10px; border: 1px solid var(--panel-border);">
+                        Standard 0.8 structural factor accounting for physical employee waste, sick leaves, biological needs, and administrative overhead. This inefficiency remains in the world even after automation.
                     </div>
                 </div>
 
                 <div class="control-group">
-                    <div class="control-label">
-                        <span>Target Geography (Continents)</span>
-                    </div>
+                    <div class="control-label">Target Geography (Continents)</div>
+                    <div class="explainer">The macro-regions defining Total Addressable Market (TAM), distribution of company sizes, and average regional labor costs.</div>
                     <div class="region-grid">
                         <button class="region-btn active" data-region="na">North America</button>
                         <button class="region-btn" data-region="eu">Europe</button>
@@ -420,15 +478,18 @@
 
         </div>
 
+        <!-- MAIN MAINBOARD OUTPUTS -->
         <div class="main-outputs">
             
+            <!-- ALERTS SECTION -->
             <div id="alert-saturation" class="alert-box">
-                [CRITICAL PLATEO REACHED]: The active target market has been fully depleted of un-automated businesses. Processing cells are idling.
+                <strong>[CRITICAL PLATEAU REACHED]</strong><br>The active target market has been fully depleted of un-automated businesses. Processing cells are idling.
             </div>
             <div id="alert-unbundled-active" class="alert-box amber">
-                [NOTICE]: Market saturation limits bypassed via pre-set Unbundling product fragmentation. Core system processing sub-value loops.
+                <strong>[NOTICE]</strong><br>Market saturation limits bypassed via pre-set Unbundling product fragmentation. Core system is now processing adjacent sub-value loops.
             </div>
 
+            <!-- OUTPUT SECTION A: REALIZED VALUE CAPTURE -->
             <div class="panel" style="margin-bottom: 25px;">
                 <div class="panel-title">Group A: Realized Capital Capture & Impact (Within Horizon)</div>
                 <div class="outputs-container">
@@ -447,6 +508,7 @@
                 </div>
             </div>
 
+            <!-- OUTPUT SECTION B: OPPORTUNITY LEAKAGE & PIPELINE -->
             <div class="panel" style="margin-bottom: 25px;">
                 <div class="panel-title">Group B: Dynamic Pipeline & Leakage Tracking</div>
                 <div class="outputs-container">
@@ -465,26 +527,27 @@
                 </div>
             </div>
 
+            <!-- OUTPUT SECTION C: REMAINING TAM & PROJECTIONS -->
             <div class="panel">
                 <div class="panel-title">Group C: Market Availability & Velocity Projections</div>
                 <div class="outputs-container">
                     <div class="output-card info">
                         <div class="output-desc">Saturation Plateau Forecast</div>
-                        <div class="output-num" id="out-plateau-time">Never</div>
+                        <div class="output-num" id="out-plateau-time" style="font-size: 18px;">Never</div>
                     </div>
                     <div class="output-card info">
                         <div class="output-desc">Processing Capture Velocity</div>
                         <div class="output-num" id="out-velocity">0 / day</div>
                     </div>
                     <div class="output-card leakage">
-                        <div class="output-desc">Global Inefficiency Burn Rate</div>
+                        <div class="output-desc">Dynamic Global Inefficiency Burn</div>
                         <div class="output-num" id="out-global-burn">$0 / mo</div>
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; border-top: 1px dashed var(--panel-border); padding-top: 15px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 25px; border-top: 1px dashed var(--panel-border); padding-top: 20px;">
                     <div>
-                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 5px;">Remaining Available Companies:</div>
+                        <div style="font-size: 13px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;">Remaining Available Companies:</div>
                         <div class="breakdown-list">
                             <div class="breakdown-row"><span class="lbl">Small B2B (1-5 staff)</span><span class="num" id="break-rem-small">0</span></div>
                             <div class="breakdown-row"><span class="lbl">Medium B2B (6-50 staff)</span><span class="num" id="break-rem-med">0</span></div>
@@ -492,120 +555,132 @@
                         </div>
                     </div>
                     <div>
-                        <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 5px;">Time-Series Status Log:</div>
+                        <div style="font-size: 13px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;">Time-Series Status Log:</div>
                         <div class="breakdown-list">
                             <div class="breakdown-row"><span class="lbl">Total Simulation Horizon</span><span class="num" id="log-horizon-days">0 days</span></div>
                             <div class="breakdown-row"><span class="lbl">Saturation Status</span><span class="num" id="log-saturation-status" style="color: var(--accent-green);">UNSATURATED</span></div>
-                            <div class="breakdown-row"><span class="lbl">Time to 100% Depletion</span><span class="num" id="log-depletion-time">0 days</span></div>
+                            <div class="breakdown-row"><span class="lbl">Time to Saturation Reached</span><span class="num" id="log-reached-time">N/A</span></div>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <!-- INCOME TIMELINE GRAPH CHART -->
             <div class="chart-wrapper">
-                <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px;">Antimatter Cumulative Revenue Timeline Graph</div>
+                <div style="font-size: 13px; text-transform: uppercase; color: var(--text-main); margin-bottom: 15px; font-weight: bold;">
+                    Antimatter Cumulative Revenue Timeline (X: Time, Y: USD)
+                </div>
                 <canvas id="revenueChart"></canvas>
             </div>
 
         </div>
     </div>
 
+    <!-- FOOTER MATH SPECIFICATIONS -->
     <div class="tech-spec-trigger" onclick="toggleTechSpec()">[ + ] Show Mathematical Engine Specifications (Physics of Antimatter)</div>
+    
     <div id="tech-spec" class="tech-spec-panel">
         <h3>Structural Time-Series Mathematical Formulas</h3>
-        <p>This engine tracks the conversion of discrete corporate structures across continents by processing daily inflow queues through an active distribution network.</p>
-        <code>Daily Traffic Vector Capture = N_cells * 18 companies / day</code>
-        <code>FTE Saved per Firm Group = (144 routine hours / 134.4 actual working hours) * M_size_group</code>
-        <code>Cross-Sell Compound Expansion Multiplier (M_prod) = Sum_{i=1}^{N_prods} (K_cross * 0.8)^{i-1}</code>
-        <code>Macro Client Value Creation = M_size_group * 144 hours * C_h * L</code>
-        <code>Tariff Acceptability Elasticity Gradient (K_agree): Quadratic decay boundary mapped to zero compatibility index at 80% take rate factor.</code>
+        
+        <div class="formula-block">
+            <code>Daily Processing Velocity = N_cells × 18 companies/day</code>
+            <p><strong>N_cells:</strong> Number of internal distribution cells active in the market.</p>
+            <p><strong>18:</strong> The fixed empirical limit of un-automated businesses one cell can process per day.</p>
+        </div>
+
+        <div class="formula-block">
+            <code>V_ineff = M_size_group × 144 hours × C_h × 0.8</code>
+            <p><strong>V_ineff:</strong> Monthly absolute value of inefficiency (money burned) inside a specific company tier.</p>
+            <p><strong>M_size_group:</strong> Average amount of target personnel in the tier (Small, Medium, Enterprise).</p>
+            <p><strong>144 hours:</strong> The standardized baseline monthly working hours.</p>
+            <p><strong>C_h:</strong> Average cost of an hour of human labor in the selected geographic continent.</p>
+            <p><strong>0.8 (Locus Coefficient):</strong> The permanent "tax on human nature". Even when automated, 20% of biological inefficiency remains.</p>
+        </div>
+
+        <div class="formula-block">
+            <code>Dynamic Global Burn Rate = Initial Global Burn Rate - Σ(Active Clients × V_ineff)</code>
+            <p><strong>Dynamic Burn Rate:</strong> Unlike static models, as Antimatter acquires clients, the world physically stops burning this money. The global inefficiency pool decreases linearly by the exact amount of 80% value extracted by active software.</p>
+        </div>
+
+        <div class="formula-block">
+            <code>Cross-Sell Compound Multiplier (M_prod) = Σ [from i=1 to N_prods] (K_cross × 0.8)^(i-1)</code>
+            <p><strong>M_prod:</strong> The overall ecosystem value multiplier per client.</p>
+            <p><strong>K_cross:</strong> Cross-sell efficiency percentage (probability of buying the next product).</p>
+            <p><strong>0.8:</strong> Utility decay factor. Each subsequent product solves a slightly smaller routine problem than the previous one.</p>
+        </div>
+
+        <div class="formula-block">
+            <code>Daily Revenue = Active Clients × (V_ineff / 30) × M_prod × P_take</code>
+            <p><strong>Active Clients:</strong> Companies that have successfully passed the Free Trial and elasticity checks.</p>
+            <p><strong>(V_ineff / 30):</strong> The daily value generated for the client.</p>
+            <p><strong>P_take:</strong> Your Take Rate (the percentage of saved capital you charge as a SaaS fee).</p>
+        </div>
     </div>
 </div>
 
 <script>
     // STRUCTURAL MACROECONOMIC ENVIRONMENT DATABASES (ZERO LOCUS)
     const CONTINENT_DB = {
-        na: {
-            name: "North America",
-            totalFirms: 35000000,
-            ch: 35, // Average cost of hour
-            dist: { small: 0.80, med: 0.18, ent: 0.02 },
-            mSize: { small: 3, med: 28, ent: 275.5 }
-        },
-        eu: {
-            name: "Europe",
-            totalFirms: 30000000,
-            ch: 28,
-            dist: { small: 0.85, med: 0.14, ent: 0.01 },
-            mSize: { small: 3, med: 28, ent: 275.5 }
-        },
-        as: {
-            name: "Asia",
-            totalFirms: 75000000,
-            ch: 8,
-            dist: { small: 0.70, med: 0.25, ent: 0.05 },
-            mSize: { small: 3, med: 28, ent: 275.5 }
-        },
-        sa: {
-            name: "South America",
-            totalFirms: 15000000,
-            ch: 10,
-            dist: { small: 0.87, med: 0.122, ent: 0.008 },
-            mSize: { small: 3, med: 28, ent: 275.5 }
-        },
-        af: {
-            name: "Africa",
-            totalFirms: 10000000,
-            ch: 6,
-            dist: { small: 0.91, med: 0.087, ent: 0.003 },
-            mSize: { small: 3, med: 28, ent: 275.5 }
-        }
+        na: { name: "North America", totalFirms: 35000000, ch: 35, dist: { small: 0.80, med: 0.18, ent: 0.02 }, mSize: { small: 3, med: 28, ent: 275.5 } },
+        eu: { name: "Europe", totalFirms: 30000000, ch: 28, dist: { small: 0.85, med: 0.14, ent: 0.01 }, mSize: { small: 3, med: 28, ent: 275.5 } },
+        as: { name: "Asia", totalFirms: 75000000, ch: 8, dist: { small: 0.70, med: 0.25, ent: 0.05 }, mSize: { small: 3, med: 28, ent: 275.5 } },
+        sa: { name: "South America", totalFirms: 15000000, ch: 10, dist: { small: 0.87, med: 0.122, ent: 0.008 }, mSize: { small: 3, med: 28, ent: 275.5 } },
+        af: { name: "Africa", totalFirms: 10000000, ch: 6, dist: { small: 0.91, med: 0.087, ent: 0.003 }, mSize: { small: 3, med: 28, ent: 275.5 } }
     };
 
-    // Global App Configuration State
     let activeRegions = new Set(['na']);
 
-    // UI Element Selections
-    const sliders = {
-        cells: document.getElementById('input-cells'),
-        products: document.getElementById('input-products'),
-        ptake: document.getElementById('input-ptake'),
-        trial: document.getElementById('input-trial'),
-        unbundle: document.getElementById('input-unbundle'),
-        cross: document.getElementById('input-cross'),
-        horizon: document.getElementById('input-horizon')
-    };
+    // UI Bi-Directional Binding Configurations
+    const uiControls = [
+        { id: 'cells', parse: parseInt },
+        { id: 'products', parse: parseInt },
+        { id: 'ptake', parse: parseInt },
+        { id: 'trial', parse: parseInt },
+        { id: 'unbundle', parse: parseFloat },
+        { id: 'cross', parse: parseInt },
+        { id: 'horizon', parse: parseInt }
+    ];
 
-    const valLabels = {
-        cells: document.getElementById('val-cells'),
-        products: document.getElementById('val-products'),
-        ptake: document.getElementById('val-ptake'),
-        trial: document.getElementById('val-trial'),
-        unbundle: document.getElementById('val-unbundle'),
-        cross: document.getElementById('val-cross'),
-        horizon: document.getElementById('val-horizon')
-    };
+    const vals = {}; // Store parsed values here
 
-    const timeUnitSelect = document.getElementById('input-timeunit');
+    uiControls.forEach(ctrl => {
+        const rangeObj = document.getElementById(`range-${ctrl.id}`);
+        const numObj = document.getElementById(`num-${ctrl.id}`);
+        
+        // Range drives Number
+        rangeObj.addEventListener('input', (e) => {
+            let val = ctrl.id === 'unbundle' ? (parseInt(e.target.value) / 10).toFixed(1) : e.target.value;
+            numObj.value = val;
+            runSimulation();
+        });
+        
+        // Number drives Range
+        numObj.addEventListener('input', (e) => {
+            let val = parseFloat(e.target.value);
+            if(isNaN(val)) return;
+            if (ctrl.id === 'unbundle') {
+                rangeObj.value = Math.round(val * 10);
+            } else {
+                rangeObj.value = val;
+            }
+            runSimulation();
+        });
+    });
+
+    const timeUnitSelect = document.getElementById('select-timeunit');
+    timeUnitSelect.addEventListener('change', runSimulation);
+
     const canvas = document.getElementById('revenueChart');
     const ctx = canvas.getContext('2d');
 
-    // Attach Input Event Listeners
-    Object.keys(sliders).forEach(key => {
-        sliders[key].addEventListener('input', runSimulation);
-    });
-    timeUnitSelect.addEventListener('change', runSimulation);
-
-    // Setup Geo Region Buttons
     document.querySelectorAll('.region-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const reg = e.target.getAttribute('data-region');
-            if (activeRegions.has(reg)) {
-                if (activeRegions.size > 1) activeRegions.delete(reg);
+            if (activeRegions.has(reg) && activeRegions.size > 1) {
+                activeRegions.delete(reg);
             } else {
                 activeRegions.add(reg);
             }
-            // Sync active classes
             document.querySelectorAll('.region-btn').forEach(b => {
                 const r = b.getAttribute('data-region');
                 if (activeRegions.has(r)) b.classList.add('active');
@@ -615,13 +690,11 @@
         });
     });
 
-    // Toggle Technical Specifications Display Block
     function toggleTechSpec() {
         const p = document.getElementById('tech-spec');
         p.style.display = p.style.display === 'block' ? 'none' : 'block';
     }
 
-    // Convert days length integer into structured English description text block
     function formatTimePeriod(days) {
         if (days === Infinity || isNaN(days)) return "Never / Unsaturated";
         let years = Math.floor(days / 365);
@@ -630,55 +703,50 @@
         let d = Math.round(rem % 30);
 
         let output = [];
-        if (years > 0) output.push(`${years}y`);
-        if (months > 0) output.push(`${months}m`);
-        if (d > 0 || output.length === 0) output.push(`${d}d`);
-        return output.join(' ');
+        if (years > 0) output.push(`${years} years`);
+        if (months > 0) output.push(`${months} months`);
+        if (d > 0 || output.length === 0) output.push(`${d} days`);
+        return output.join(', ');
     }
 
-    // Non-linear Market Agreement Tariff Elasticity Function Curve
+    function formatMoney(num) {
+        if (num === 0) return "0";
+        let isNegative = num < 0;
+        let absNum = Math.abs(num);
+        let formatted = "";
+        
+        if (absNum >= 1e12) formatted = (absNum / 1e12).toFixed(1) + 'T';
+        else if (absNum >= 1e9) formatted = (absNum / 1e9).toFixed(1) + 'B';
+        else if (absNum >= 1e6) formatted = (absNum / 1e6).toFixed(1) + 'M';
+        else if (absNum >= 1e3) formatted = (absNum / 1e3).toFixed(1) + 'K';
+        else formatted = absNum.toFixed(0);
+
+        return (isNegative ? "-" : "") + formatted;
+    }
+
     function getMarketAgreement(pTakePercent) {
         let pTake = pTakePercent / 100;
         if (pTake <= 0.02) return 0.05;
         if (pTake >= 0.80) return 0;
-        
-        if (pTake <= 0.10) {
-            return 0.05 + 0.95 * ((pTake - 0.02) / 0.08);
-        } else {
-            return Math.pow(1 - (pTake - 0.10) / 0.70, 1.5);
-        }
+        if (pTake <= 0.10) return 0.05 + 0.95 * ((pTake - 0.02) / 0.08);
+        return Math.pow(1 - (pTake - 0.10) / 0.70, 1.5);
     }
 
-    // Main Processing Time-Series Model Core Algorithm
     function runSimulation() {
-        // 1. Get Parameters from inputs
-        const cells = parseInt(sliders.cells.value);
-        const products = parseInt(sliders.products.value);
-        const pTakePercent = parseInt(sliders.ptake.value);
-        const trialDays = parseInt(sliders.trial.value);
-        const unbundleCoeff = parseInt(sliders.unbundle.value) / 10;
-        const crossSellEff = parseInt(sliders.cross.value) / 100;
-        const horizonInput = parseInt(sliders.horizon.value);
+        // Read current validated values
+        uiControls.forEach(ctrl => {
+            const val = document.getElementById(`num-${ctrl.id}`).value;
+            vals[ctrl.id] = ctrl.parse(val);
+        });
         const timeUnit = timeUnitSelect.value;
 
-        // Sync Labels
-        valLabels.cells.innerText = cells;
-        valLabels.products.innerText = products;
-        valLabels.ptake.innerText = `${pTakePercent}%`;
-        valLabels.trial.innerText = `${trialDays} Days`;
-        valLabels.unbundle.innerText = `${unbundleCoeff.toFixed(1)}x`;
-        valLabels.cross.innerText = `${(crossSellEff * 100).toFixed(0)}%`;
-        valLabels.horizon.innerText = horizonInput;
-
-        // Calculate explicit simulation timeline horizon in days unit
-        let horizonDays = horizonInput;
-        if (timeUnit === 'months') horizonDays = horizonInput * 30;
-        if (timeUnit === 'years') horizonDays = horizonInput * 365;
+        let horizonDays = vals.horizon;
+        if (timeUnit === 'months') horizonDays = vals.horizon * 30;
+        if (timeUnit === 'years') horizonDays = vals.horizon * 365;
         document.getElementById('log-horizon-days').innerText = `${horizonDays} days`;
 
-        // 2. Compile Aggregated Target Market Size Categories Capacity pools
         let marketSmall = 0, marketMed = 0, marketEnt = 0;
-        let globalBurnRateMonthly = 0;
+        let initialGlobalBurnRateMonthly = 0;
 
         activeRegions.forEach(regId => {
             const rData = CONTINENT_DB[regId];
@@ -686,32 +754,22 @@
             marketMed += rData.totalFirms * rData.dist.med;
             marketEnt += rData.totalFirms * rData.dist.ent;
 
-            // Calculate current macro systemic financial inefficiency burn rate inside region
-            // Total routine hours per year * employee cost index
             let totalRegionalMngs = (rData.totalFirms * rData.dist.small * rData.mSize.small) +
                                     (rData.totalFirms * rData.dist.med * rData.mSize.med) +
                                     (rData.totalFirms * rData.dist.ent * rData.mSize.ent);
-            globalBurnRateMonthly += totalRegionalMngs * 144 * rData.ch * 0.8;
+            initialGlobalBurnRateMonthly += totalRegionalMngs * 144 * rData.ch * 0.8;
         });
 
-        document.getElementById('out-global-burn').innerText = `$${Math.round(globalBurnRateMonthly).toLocaleString()} / mo`;
-
         const totalMarketCapacityFirms = marketSmall + marketMed + marketEnt;
-        const basePlateauLimitFirms = totalMarketCapacityFirms;
-        const dynamicPlateauLimitFirms = basePlateauLimitFirms * unbundleCoeff;
-
-        // Discrete processing speed parameters
-        const totalDailyProcessingCapacity = cells * 18;
+        const dynamicPlateauLimitFirms = totalMarketCapacityFirms * vals.unbundle;
+        const totalDailyProcessingCapacity = vals.cells * 18;
         
-        // Calculate Processing Capture Velocity output text display based on selected viewing unit
         let trackingVelocity = totalDailyProcessingCapacity;
         let velocityUnitLabel = "/ day";
-        if (timeUnit === 'months') { trackingVelocity = totalDailyProcessingCapacity * 30; velocityUnitLabel = "/ mo"; }
-        if (timeUnit === 'years') { trackingVelocity = totalDailyProcessingCapacity * 365; velocityUnitLabel = "/ yr"; }
+        if (timeUnit === 'months') { trackingVelocity *= 30; velocityUnitLabel = "/ mo"; }
+        if (timeUnit === 'years') { trackingVelocity *= 365; velocityUnitLabel = "/ yr"; }
         document.getElementById('out-velocity').innerText = `${Math.round(trackingVelocity).toLocaleString()} ${velocityUnitLabel}`;
 
-        // 3. Compute Value Matrix per Corporate Target tier categories
-        // To find average weights for values, compile parameters from chosen geographies
         let weightedCh = 0;
         activeRegions.forEach(id => weightedCh += CONTINENT_DB[id].ch);
         weightedCh /= activeRegions.size;
@@ -722,34 +780,23 @@
             ent: CONTINENT_DB.na.mSize.ent * 144 * weightedCh * 0.8
         };
 
-        // Cross sell expansion multiplier compound math scaling limits
         let mProd = 0;
-        for (let i = 1; i <= products; i++) {
-            mProd += Math.pow(crossSellEff * 0.8, i - 1);
+        for (let i = 1; i <= vals.products; i++) {
+            mProd += Math.pow((vals.cross / 100) * 0.8, i - 1);
         }
 
-        // Apply non-linear agreement rate modifier curves based on selected take rates
-        const kAgree = getMarketAgreement(pTakePercent);
+        const kAgree = getMarketAgreement(vals.ptake);
         
-        // Determine trial conversions dropout rate factor
-        let baseTrialChurn = 0.10 + 0.70 * Math.exp(-trialDays / 4);
-        if (trialDays > 21) {
-            baseTrialChurn += 0.10 * ((trialDays - 21) / 9);
-        }
-        // Higher pricing take rates linearly scale post-trial rejection frequencies
-        let finalTrialChurnRate = baseTrialChurn * (1 + Math.pow(pTakePercent / 40, 2));
-        if (finalTrialChurnRate > 1) finalTrialChurnRate = 1;
+        let baseTrialChurn = 0.10 + 0.70 * Math.exp(-vals.trial / 4);
+        if (vals.trial > 21) baseTrialChurn += 0.10 * ((vals.trial - 21) / 9);
+        let finalTrialChurnRate = Math.min(1, baseTrialChurn * (1 + Math.pow(vals.ptake / 40, 2)));
         const conversionSuccessRate = 1 - finalTrialChurnRate;
 
-        // 4. Run Iterative Day-by-Day Time Series Engine Loop
         let remSmall = marketSmall;
         let remMed = marketMed;
         let remEnt = marketEnt;
-
         let activePayingClients = { small: 0, med: 0, ent: 0 };
-        
-        // Pipeline queues to track deferred free trial structures
-        let trialQueue = []; // array of items: { dayAvailable: X, countSmall: Y, countMed: Z, countEnt: W }
+        let trialQueue = [];
 
         let accumulatedRevenue = 0;
         let accumulatedClientValue = 0;
@@ -759,21 +806,15 @@
         let chartPointsData = [];
         let plateauDayReached = null;
 
-        // Absolute target breakdown weights ratios to feed capacity queues properly
         const initialSumRatios = (marketSmall + marketMed + marketEnt);
         const ratioSmall = marketSmall / initialSumRatios;
         const ratioMed = marketMed / initialSumRatios;
-        const ratioEnt = marketEnt / initialSumRatios;
 
         for (let day = 1; day <= horizonDays; day++) {
-            // Check if available ecosystem is depleted down to systemic dynamic unbundled plateau limits
             let processedFirmsTotal = (marketSmall - remSmall) + (marketMed - remMed) + (marketEnt - remEnt);
             
             if (processedFirmsTotal < dynamicPlateauLimitFirms) {
-                // Calculate capacity slice for today
                 let currentDayCapacity = totalDailyProcessingCapacity;
-
-                // Allocate across corporate category reservoirs
                 let takeSmall = Math.min(remSmall, currentDayCapacity * ratioSmall);
                 currentDayCapacity -= takeSmall;
                 remSmall -= takeSmall;
@@ -785,34 +826,22 @@
                 let takeEnt = Math.min(remEnt, currentDayCapacity);
                 remEnt -= takeEnt;
 
-                // Push captured firms pool directly into deferred trial queue tracking pipelines
-                trialQueue.push({
-                    conversionDay: day + trialDays,
-                    small: takeSmall,
-                    med: takeMed,
-                    ent: takeEnt
-                });
-            } else {
-                if (plateauDayReached === null) {
-                    plateauDayReached = day;
-                }
+                trialQueue.push({ conversionDay: day + vals.trial, small: takeSmall, med: takeMed, ent: takeEnt });
+            } else if (plateauDayReached === null) {
+                plateauDayReached = day;
             }
 
-            // Process free trial pipeline queues maturity events
             while (trialQueue.length > 0 && trialQueue[0].conversionDay === day) {
                 let cohort = trialQueue.shift();
                 
-                // Segment cohorts based on conversion elasticity matrices
                 let acceptedSmall = cohort.small * kAgree;
                 let acceptedMed = cohort.med * kAgree;
                 let acceptedEnt = cohort.ent * kAgree;
 
-                // Factor out structural tariff elasticity leaks
                 let leakTariffSmall = cohort.small * (1 - kAgree);
                 let leakTariffMed = cohort.med * (1 - kAgree);
                 let leakTariffEnt = cohort.ent * (1 - kAgree);
 
-                // Add converted assets into active paying pools tracking buckets
                 let convertedSmall = acceptedSmall * conversionSuccessRate;
                 let convertedMed = acceptedMed * conversionSuccessRate;
                 let convertedEnt = acceptedEnt * conversionSuccessRate;
@@ -821,38 +850,24 @@
                 activePayingClients.med += convertedMed;
                 activePayingClients.ent += convertedEnt;
 
-                // Track continuous leakage values
                 let droppedSmall = acceptedSmall * finalTrialChurnRate;
                 let droppedMed = acceptedMed * finalTrialChurnRate;
                 let droppedEnt = acceptedEnt * finalTrialChurnRate;
 
-                // Calculate lifelong dynamic leaks metrics matching current values
                 let singleCompanyValSmall = (monthlyValueMatrix.small / 30) * mProd;
                 let singleCompanyValMed = (monthlyValueMatrix.med / 30) * mProd;
                 let singleCompanyValEnt = (monthlyValueMatrix.ent / 30) * mProd;
 
-                lostRevenueLeakageTrial += (droppedSmall * singleCompanyValSmall + droppedMed * singleCompanyValMed + droppedEnt * singleCompanyValEnt) * (pTakePercent / 100) * (horizonDays - day);
-                lostRevenueLeakageTariff += (leakTariffSmall * singleCompanyValSmall + leakTariffMed * singleCompanyValMed + leakTariffEnt * singleCompanyValEnt) * (pTakePercent / 100) * (horizonDays - day);
+                lostRevenueLeakageTrial += (droppedSmall * singleCompanyValSmall + droppedMed * singleCompanyValMed + droppedEnt * singleCompanyValEnt) * (vals.ptake / 100);
+                lostRevenueLeakageTariff += (leakTariffSmall * singleCompanyValSmall + leakTariffMed * singleCompanyValMed + leakTariffEnt * singleCompanyValEnt) * (vals.ptake / 100);
             }
 
-            // Calculate daily generated recurring monetization pools values
-            let dailyRevenue = 0;
-            let dailyClientValue = 0;
-
-            // Small business contribution variables
             let revSmall = activePayingClients.small * (monthlyValueMatrix.small / 30) * mProd;
-            dailyClientValue += activePayingClients.small * (monthlyValueMatrix.small / 30) * mProd;
-            dailyRevenue += revSmall * (pTakePercent / 100);
-
-            // Medium business contribution variables
             let revMed = activePayingClients.med * (monthlyValueMatrix.med / 30) * mProd;
-            dailyClientValue += activePayingClients.med * (monthlyValueMatrix.med / 30) * mProd;
-            dailyRevenue += revMed * (pTakePercent / 100);
-
-            // Enterprise business contribution variables
             let revEnt = activePayingClients.ent * (monthlyValueMatrix.ent / 30) * mProd;
-            dailyClientValue += activePayingClients.ent * (monthlyValueMatrix.ent / 30) * mProd;
-            dailyRevenue += revEnt * (pTakePercent / 100);
+
+            let dailyClientValue = revSmall + revMed + revEnt;
+            let dailyRevenue = dailyClientValue * (vals.ptake / 100);
 
             accumulatedRevenue += dailyRevenue;
             accumulatedClientValue += dailyClientValue;
@@ -860,72 +875,73 @@
             chartPointsData.push(accumulatedRevenue);
         }
 
-        // 5. Calculate and compile Deferred Revenue Pipeline running data
         let deferredRevenuePipelineTotal = 0;
         trialQueue.forEach(cohort => {
             let potentialDailyValue = (cohort.small * (monthlyValueMatrix.small / 30) +
                                        cohort.med * (monthlyValueMatrix.med / 30) +
-                                       cohort.ent * (monthlyValueMatrix.ent / 30)) * mProd * (pTakePercent / 100) * kAgree * conversionSuccessRate;
-            // Project the pipeline value for a standard month cycle validation
-            deferredRevenuePipelineTotal += potentialDailyValue * 30;
+                                       cohort.ent * (monthlyValueMatrix.ent / 30)) * mProd * (vals.ptake / 100) * kAgree * conversionSuccessRate;
+            deferredRevenuePipelineTotal += potentialDailyValue * 30; // Project month
         });
 
-        // 6. Project time vector required for absolute ecosystem depletion matching criteria
+        // Dynamic Global Burn Rate Calculation
+        // It decreases precisely by the amount of biological inefficiency automated by active clients.
+        let activeAutomatedMonthlyValue = (activePayingClients.small * monthlyValueMatrix.small) +
+                                          (activePayingClients.med * monthlyValueMatrix.med) +
+                                          (activePayingClients.ent * monthlyValueMatrix.ent);
+        // Note: monthlyValueMatrix ALREADY includes the 0.8 L factor. 
+        // Thus activeAutomatedMonthlyValue is exactly the 80% chunk that is eliminated.
+        let currentDynamicBurnRate = initialGlobalBurnRateMonthly - activeAutomatedMonthlyValue;
+        if (currentDynamicBurnRate < 0) currentDynamicBurnRate = 0;
+
         let activeMarketDepletionDaysForecast = Infinity;
-        let totalFirmsRemaining = remSmall + remMed + remEnt;
+        let totalFirmsRemaining = marketSmall + marketMed + marketEnt;
         if (totalDailyProcessingCapacity > 0) {
             activeMarketDepletionDaysForecast = totalFirmsRemaining / totalDailyProcessingCapacity;
         }
 
-        // Render calculated interface output fields
-        document.getElementById('out-revenue').innerText = `$${Math.round(accumulatedRevenue).toLocaleString()}`;
-        document.getElementById('out-client-value').innerText = `$${Math.round(accumulatedClientValue).toLocaleString()}`;
+        document.getElementById('out-revenue').innerText = `$${formatMoney(accumulatedRevenue)}`;
+        document.getElementById('out-client-value').innerText = `$${formatMoney(accumulatedClientValue)}`;
         
-        // Calculate Total Active Active transformed FTE instances delivered globally
-        let currentTotalTransformedFTEs = (activePayingClients.small * 1.0714 * CONTINENT_DB.na.mSize.small) +
-                                          (activePayingClients.med * 1.0714 * CONTINENT_DB.na.mSize.med) +
-                                          (activePayingClients.ent * 1.0714 * CONTINENT_DB.na.mSize.ent);
+        let currentTotalTransformedFTEs = (activePayingClients.small * CONTINENT_DB.na.mSize.small) +
+                                          (activePayingClients.med * CONTINENT_DB.na.mSize.med) +
+                                          (activePayingClients.ent * CONTINENT_DB.na.mSize.ent);
         document.getElementById('out-active-fte').innerText = Math.round(currentTotalTransformedFTEs).toLocaleString();
 
-        document.getElementById('out-deferred-pipeline').innerText = `$${Math.round(deferredRevenuePipelineTotal).toLocaleString()}`;
-        document.getElementById('out-leak-trial').innerText = `$${Math.round(lostRevenueLeakageTrial).toLocaleString()}`;
-        document.getElementById('out-leak-tariff').innerText = `$${Math.round(lostRevenueLeakageTariff).toLocaleString()}`;
+        document.getElementById('out-deferred-pipeline').innerText = `$${formatMoney(deferredRevenuePipelineTotal)}`;
+        document.getElementById('out-leak-trial').innerText = `$${formatMoney(lostRevenueLeakageTrial)}`;
+        document.getElementById('out-leak-tariff').innerText = `$${formatMoney(lostRevenueLeakageTariff)}`;
 
-        // Map Saturation Plateau state visual updates
+        // Render Dynamic Global Burn Rate
+        document.getElementById('out-global-burn').innerText = `$${formatMoney(currentDynamicBurnRate)} / mo`;
+
         const statusBox = document.getElementById('log-saturation-status');
-        if (plateauDayReached !== null || ( (marketSmall-remSmall)+(marketMed-remMed)+(marketEnt-remEnt) ) >= basePlateauLimitFirms) {
+        let reachedText = "N/A";
+        if (plateauDayReached !== null || (marketSmall-remSmall)+(marketMed-remMed)+(marketEnt-remEnt) >= totalMarketCapacityFirms) {
             statusBox.innerText = "SATURATED";
             statusBox.style.color = "var(--accent-red)";
             document.getElementById('alert-saturation').style.display = "block";
-            
-            if (unbundleCoeff > 1.0) {
-                document.getElementById('alert-unbundled-active').style.display = "block";
-            } else {
-                document.getElementById('alert-unbundled-active').style.display = "none";
-            }
+            if (vals.unbundle > 1.0) document.getElementById('alert-unbundled-active').style.display = "block";
+            else document.getElementById('alert-unbundled-active').style.display = "none";
+            reachedText = formatTimePeriod(plateauDayReached);
         } else {
             statusBox.innerText = "UNSATURATED";
             statusBox.style.color = "var(--accent-green)";
             document.getElementById('alert-saturation').style.display = "none";
             document.getElementById('alert-unbundled-active').style.display = "none";
         }
+        document.getElementById('log-reached-time').innerText = reachedText;
 
-        // Format and render plateau events intervals metrics
         let displayPlateauDay = plateauDayReached !== null ? plateauDayReached : activeMarketDepletionDaysForecast;
         document.getElementById('out-plateau-time').innerText = formatTimePeriod(displayPlateauDay);
-        document.getElementById('log-depletion-time').innerText = `${Math.round(activeMarketDepletionDaysForecast)} days`;
 
-        // Render remaining business pools elements breakdown
-        document.getElementById('break-rem-small').innerText = Math.round(remSmall).toLocaleString();
-        document.getElementById('break-rem-med').innerText = Math.round(remMed).toLocaleString();
-        document.getElementById('break-rem-ent').innerText = Math.round(remEnt).toLocaleString();
+        document.getElementById('break-rem-small').innerText = formatMoney(Math.round(remSmall));
+        document.getElementById('break-rem-med').innerText = formatMoney(Math.round(remMed));
+        document.getElementById('break-rem-ent').innerText = formatMoney(Math.round(remEnt));
 
-        // Draw structural dashboard canvas layout plots lines
-        renderChartGraphic(chartPointsData);
+        renderChartGraphic(chartPointsData, horizonDays);
     }
 
-    // Custom lightweight native High-Fidelity canvas rendering chart execution tool
-    function renderChartGraphic(dataPoints) {
+    function renderChartGraphic(dataPoints, horizonDays) {
         const width = canvas.offsetWidth;
         const height = canvas.offsetHeight;
         canvas.width = width * window.devicePixelRatio;
@@ -934,53 +950,82 @@
 
         ctx.clearRect(0, 0, width, height);
 
-        // Drawing grid parameters
-        ctx.strokeStyle = '#161622';
+        const paddingLeft = 50;
+        const paddingBottom = 25;
+        const paddingTop = 15;
+        const paddingRight = 15;
+        const graphWidth = width - paddingLeft - paddingRight;
+        const graphHeight = height - paddingTop - paddingBottom;
+
+        const maxVal = Math.max(...dataPoints, 100);
+
+        // Draw Axes Background Lines and Y Labels
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '12px Courier New';
+        ctx.strokeStyle = '#1a1a24';
         ctx.lineWidth = 1;
-        const gridLinesCount = 5;
-        for (let i = 1; i < gridLinesCount; i++) {
-            let y = (height / gridLinesCount) * i;
+
+        const gridLinesCountY = 5;
+        for (let i = 0; i <= gridLinesCountY; i++) {
+            let y = paddingTop + graphHeight - (i / gridLinesCountY) * graphHeight;
+            let valY = maxVal * (i / gridLinesCountY);
+            
+            // Text Y axis
+            ctx.textAlign = "right";
+            ctx.fillText("$" + formatMoney(valY), paddingLeft - 10, y + 4);
+            
+            // Line
             ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(width, y);
+            ctx.moveTo(paddingLeft, y);
+            ctx.lineTo(width - paddingRight, y);
             ctx.stroke();
+        }
+
+        // Draw X Labels
+        const gridLinesCountX = 4;
+        for(let i = 0; i <= gridLinesCountX; i++) {
+            let x = paddingLeft + (i / gridLinesCountX) * graphWidth;
+            let dayMarker = Math.floor(horizonDays * (i / gridLinesCountX));
+            ctx.textAlign = "center";
+            ctx.fillText(dayMarker + "d", x, height - 5);
         }
 
         if (dataPoints.length === 0) return;
 
-        // Map layout configurations data scaling coordinates
-        const maxVal = Math.max(...dataPoints, 10000);
-        const paddingRight = 20;
-        const paddingTop = 20;
-        const graphHeight = height - paddingTop - 10;
-
+        // Draw Data Timeline
         ctx.beginPath();
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 3;
         ctx.strokeStyle = '#00ff66';
+        ctx.lineJoin = 'round';
 
         for (let i = 0; i < dataPoints.length; i++) {
-            let x = (width / dataPoints.length) * i;
-            let y = height - ((dataPoints[i] / maxVal) * graphHeight) - 5;
+            let x = paddingLeft + (graphWidth / (dataPoints.length - 1)) * i;
+            let y = paddingTop + graphHeight - ((dataPoints[i] / maxVal) * graphHeight);
             
             if (i === 0) ctx.moveTo(x, y);
             else ctx.lineTo(x, y);
         }
         ctx.stroke();
 
-        // Fill background area under timeline revenue plots line
-        ctx.lineTo(width, height);
-        ctx.lineTo(0, height);
-        ctx.fillStyle = 'rgba(0, 255, 102, 0.02)';
+        // Fill area under the curve
+        ctx.lineTo(paddingLeft + graphWidth, paddingTop + graphHeight);
+        ctx.lineTo(paddingLeft, paddingTop + graphHeight);
+        ctx.fillStyle = 'rgba(0, 255, 102, 0.05)';
         ctx.fill();
+        
+        // Draw Axis main lines
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(paddingLeft, paddingTop);
+        ctx.lineTo(paddingLeft, paddingTop + graphHeight); // Y
+        ctx.lineTo(paddingLeft + graphWidth, paddingTop + graphHeight); // X
+        ctx.stroke();
     }
 
-    // Run Initial execution triggers
+    // Initial triggers
     runSimulation();
-    
-    // Smooth responsive rendering canvas re-trigger layout events updates
-    window.addEventListener('resize', () => {
-        runSimulation();
-    });
+    window.addEventListener('resize', runSimulation);
 </script>
 
 </body>
