@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANTIMATTER // Market & ROI Simulation Engine</title>
+    <style>
+        :root {
+            --bg-color: #0a0a0c;
+            --panel-bg: #111114;
+            --accent-green: #00ff66;
+            --accent-blue: #00e5ff;
+            --text-main: #e2e8f0;
+            --text-muted: #64748b;
+            --border-color: #1e293b;
+            --warning-amber: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 40px;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            letter-spacing: 2px;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(0, 255, 102, 0.2);
+        }
+
+        .notice-banner {
+            background-color: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--warning-amber);
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 900px) {
+            .grid-layout { grid-template-columns: 1fr; }
+        }
+
+        .panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 25px;
+        }
+
+        .panel-title {
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            color: var(--accent-blue);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        /* Регионы */
+        .region-controls {
+            margin-bottom: 25px;
+        }
+        .region-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .btn {
+            background: #1e293b;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .btn.active {
+            background: rgba(0, 229, 255, 0.15);
+            border-color: var(--accent-blue);
+            color: #fff;
+        }
+        .btn-all {
+            background: rgba(0, 255, 102, 0.1);
+            border-color: var(--accent-green);
+        }
+
+        /* Контролы ввода */
+        .control-group {
+            margin-bottom: 20px;
+        }
+        .control-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .control-label {
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .slider {
+            flex: 1;
+            -webkit-appearance: none;
+            background: #1e293b;
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            cursor: pointer;
+            box-shadow: 0 0 8px var(--accent-green);
+        }
+        .num-input {
+            width: 80px;
+            background: #1e293b;
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            text-align: right;
+            font-size: 0.9rem;
+        }
+
+        /* Дисплей метрик */
+        .metric-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .metric-box {
+            background: #0a0a0c;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .metric-val {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--accent-green);
+            margin-top: 5px;
+        }
+        .metric-val.blue { color: var(--accent-blue); }
+        .metric-lbl {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .saturation-warning {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            color: #fca5a5;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-top: 15px;
+            display: none;
+            text-align: center;
+        }
+
+        /* Методология */
+        .methodology {
+            margin-top: 40px;
+            border-top: 1px dashed var(--border-color);
+            padding-top: 30px;
+        }
+        .formula-block {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+        .formula-code {
+            color: var(--accent-blue);
+            display: block;
+            margin-top: 5px;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>ANTIMATTER // CORE MARKET SIMULATOR</h1>
+        <p style="color: var(--text-muted); margin-top: 5px;">[ Phase 4 Optimization Engine // Thiel Fellowship Presentation ]</p>
+    </header>
+
+    <div class="notice-banner">
+        <strong>⚠️ SYSTEM NOTICE (Gross Revenue Track):</strong> Данный симулятор рассчитывает чистую ценность инфраструктуры и валовый доход компании. Операционные расходы на содержание серверов и Docker-контейнеров ничтожно малы (менее $50/мес на старте) и не оказывают математического влияния на траекторию масштабирования ядра Antimatter.
+    </div>
+
+    <div class="grid-layout">
+        <div class="panel">
+            <div class="panel-title">1. Параметры Моделирования</div>
+            
+            <div class="region-controls">
+                <span class="control-label">Выбор целевых регионов (Плато суммируется):</span>
+                <div class="region-buttons">
+                    <button class="btn btn-all" onclick="selectAllRegions()">[ Select All ]</button>
+                    <button class="btn region-btn active" data-limit="50000" onclick="toggleRegion(this)">Локальный</button>
+                    <button class="btn region-btn" data-limit="200000" onclick="toggleRegion(this)">СНГ / Азия</button>
+                    <button class="btn region-btn" data-limit="1500000" onclick="toggleRegion(this)">Глобальный</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="control-header">
+                    <span class="control-label">Количество ячеек (Интеграций):</span>
+                </div>
+                <div class="input-wrapper">
+                    <input type="range" id="cells-range" class="slider" min="1" max="100" value="5" oninput="syncInput('cells')">
+                    <input type="number" id="cells-num" class="num-input" min="1" max="100" value="5" onchange="syncSlider('cells')">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="control-header">
+                    <span class="control-label">Количество процессов/продуктов на ячейку:</span>
+                </div>
+                <div class="input-wrapper">
+                    <input type="range" id="products-range" class="slider" min="1" max="20" value="3" oninput="syncInput('products')">
+                    <input type="number" id="products-num" class="num-input" min="1" max="20" value="3" onchange="syncSlider('products')">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="control-header">
+                    <span class="control-label">Наш тариф (% от созданной ценности):</span>
+                </div>
+                <div class="input-wrapper">
+                    <input type="range" id="fee-range" class="slider" min="5" max="30" value="10" oninput="syncInput('fee')">
+                    <input type="number" id="fee-num" class="num-input" min="5" max="30" value="10" onchange="syncSlider('fee')">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="control-header">
+                    <span class="control-label">% Захваченного рынка (Питч-метрика):</span>
+                </div>
+                <div class="input-wrapper">
+                    <input type="range" id="share-range" class="slider" min="0.1" max="100" step="0.1" value="1" oninput="syncInput('share')">
+                    <input type="number" id="share-num" class="num-input" min="0.1" max="100" step="0.1" value="1" onchange="syncSlider('share')">
+                </div>
+            </div>
+
+            <div class="control-group" id="unbundle-container">
+                <div class="control-header">
+                    <span class="control-label">Дробление услуг (Unbundling Index):</span>
+                </div>
+                <div class="input-wrapper">
+                    <input type="range" id="unbundle-range" class="slider" min="1.0" max="2.5" step="0.1" value="1.0" oninput="syncInput('unbundle')">
+                    <input type="number" id="unbundle-num" class="num-input" min="1" max="2.5" step="0.1" value="1.0" onchange="syncSlider('unbundle')">
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">2. Выходные Метрики (Эффект)</div>
+            
+            <div class="metric-display">
+                <div class="metric-box">
+                    <div class="metric-lbl">Ценность для клиентов</div>
+                    <div class="metric-val blue" id="client-value">$0</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-lbl">Выручка Antimatter</div>
+                    <div class="metric-val" id="our-revenue">$0</div>
+                </div>
+            </div>
+
+            <div class="metric-display">
+                <div class="metric-box">
+                    <div class="metric-lbl">Текущий лимит плато</div>
+                    <div class="metric-val blue" id="plateau-limit">$0</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-lbl">Потенциал масштаба</div>
+                    <div class="metric-val" id="scale-potential">$0</div>
+                </div>
+            </div>
+
+            <div class="metric-display" style="border-top: 1px dashed var(--border-color); padding-top: 20px;">
+                <div class="metric-box">
+                    <div class="metric-lbl">Высвобожденный штат (FTE)</div>
+                    <div class="metric-val blue" id="fte-saved">0</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-lbl">Штат Поддержки Antimatter</div>
+                    <div class="metric-val" id="our-support">0 чел.</div>
+                </div>
+            </div>
+
+            <div class="saturation-warning" id="sat-warning">
+                [ CRITICAL NOTICE: MARKET SATURATION LIMIT HIT ]<br>
+                Вы уперлись в текущее плато рынка. Для пробития потолка задействуйте ползунок «Дробление услуг» для монетизации сопутствующих SaaS-микромодулей.
+            </div>
+        </div>
+    </div>
+
+    <div class="methodology">
+        <div class="panel-title">3. Открытая методология расчетов (Open Math)</div>
+        
+        <div class="formula-block">
+            <strong>Генерация ценности для инфраструктуры клиента (Client Value Generation):</strong>
+            Каждая интеграция экономит рабочие часы сотрудников за счет автоматизации триадой агентов. Берется базовая ставка $25/час и ~40 сохраненных часов на один автоматизированный процесс.
+            <span class="formula-code">Формула: Ценность = Ячейки × Продукты × 40 ч/мес × $25/час</span>
+        </div>
+
+        <div class="formula-block">
+            <strong>Базовая выручка компании (Base Gross Revenue):</strong>
+            Доля чистой ценности, которую ядро Antimatter забирает в качестве инфраструктурного тарифа.
+            <span class="formula-code">Формула: Выручка = Ценность × (Тариф % / 100)</span>
+        </div>
+
+        <div class="formula-block">
+            <strong>Высвобожденный штат клиента (Client FTE Equivalent):</strong>
+            Показывает количество полных ставок (эквивалент сотрудников), рутинную нагрузку которых полностью заменяет развернутая инфраструктура. Принято среднее рабочее время 168 ч/мес и коэффициент загрузки сотрудника L = 80%.
+            <span class="formula-code">Формула: FTE = (Ячейки × Продукты × 40 ч/мес) ÷ (168 × 0.8)</span>
+        </div>
+
+        <div class="formula-block">
+            <strong>Штат поддержки Antimatter (Support Leverage):</strong>
+            Благодаря принципу SaaI и автоматическому изолированию багов децентрализованным *Error Workflow*, один наш интегратор способен бесперебойно администрировать до 30 ячеек параллельно.
+            <span class="formula-code">Формула: Поддержка = Math.ceil(Ячейки / 30)</span>
+        </div>
+
+        <div class="formula-block">
+            <strong>Динамическое плато насыщения (Dynamic Market Saturation):</strong>
+            Базовый лимит выбранных регионов масштабируется за счет коэффициента дробления услуг. Дробление сервиса позволяет извлекать прибыль даже при неизменном числе основных покупателей.
+            <span class="formula-code">Формула: Текущий Лимит = Сумма(Лимитов Регионов) × Индекс Дробления</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    function syncInput(id) {
+        const range = document.getElementById(`${id}-range`);
+        const num = document.getElementById(`${id}-num`);
+        num.value = range.value;
+        calculate();
+    }
+
+    function syncSlider(id) {
+        const range = document.getElementById(`${id}-range`);
+        const num = document.getElementById(`${id}-num`);
+        
+        if (parseFloat(num.value) > parseFloat(range.max)) num.value = range.max;
+        if (parseFloat(num.value) < parseFloat(range.min)) num.value = range.min;
+        
+        range.value = num.value;
+        calculate();
+    }
+
+    function toggleRegion(btn) {
+        btn.classList.toggle('active');
+        calculate();
+    }
+
+    function selectAllRegions() {
+        document.querySelectorAll('.region-btn').forEach(btn => btn.classList.add('active'));
+        calculate();
+    }
+
+    function calculate() {
+        const cells = parseInt(document.getElementById('cells-num').value) || 0;
+        const products = parseInt(document.getElementById('products-num').value) || 0;
+        const feePercent = parseFloat(document.getElementById('fee-num').value) || 0;
+        const marketShare = parseFloat(document.getElementById('share-num').value) || 0;
+        const unbundle = parseFloat(document.getElementById('unbundle-num').value) || 1.0;
+
+        // Расчет ценности для клиентов
+        const clientValue = cells * products * 40 * 25;
+        
+        // Базовая выручка Antimatter
+        let baseRevenue = clientValue * (feePercent / 100);
+
+        // Динамический лимит рынка
+        let basePlateau = 0;
+        document.querySelectorAll('.region-btn.active').forEach(btn => {
+            basePlateau += parseFloat(btn.getAttribute('data-limit'));
+        });
+
+        const dynamicPlateau = basePlateau * unbundle;
+
+        // Проверка на достижение плато
+        const warningBox = document.getElementById('sat-warning');
+        if (baseRevenue >= dynamicPlateau && dynamicPlateau > 0) {
+            baseRevenue = dynamicPlateau;
+            warningBox.style.display = 'block';
+        } else {
+            warningBox.style.display = 'none';
+        }
+
+        const scalePotential = dynamicPlateau * (marketShare / 100);
+
+        // Расчет новых операционных метрик
+        const fteSaved = (cells * products * 40) / (168 * 0.8);
+        const supportStaff = Math.ceil(cells / 30);
+
+        // Вывод результатов
+        document.getElementById('client-value').innerText = `$${clientValue.toLocaleString()}`;
+        document.getElementById('our-revenue').innerText = `$${Math.round(baseRevenue).toLocaleString()}`;
+        document.getElementById('plateau-limit').innerText = `$${dynamicPlateau.toLocaleString()}`;
+        document.getElementById('scale-potential').innerText = `$${Math.round(scalePotential).toLocaleString()}`;
+        
+        // Вывод новых метрик
+        document.getElementById('fte-saved').innerText = fteSaved.toFixed(1);
+        document.getElementById('our-support').innerText = `${supportStaff} чел.`;
+    }
+
+    calculate();
+</script>
+</body>
+</html>
