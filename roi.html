@@ -1,7 +1,449 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta charset="UTF-8"><!DOCTYPE html>
+<html lang="en">
+<head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ANTIMATTER // Cumulative ROI Simulation Engine</title>
+<style>
+:root {
+--bg-color: #050507;
+--panel-bg: #0c0c10;
+--panel-border: #1a1a24;
+--accent-green: #00ff66;
+--accent-blue: #00e5ff;
+--accent-red: #ff3366;
+--accent-amber: #ffaa00;
+--text-main: #f1f5f9;
+--text-muted: #94a3b8;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
+body { background-color: var(--bg-color); color: var(--text-main); padding: 30px 15px; line-height: 1.6; font-size: 14px; }
+.container { max-width: 1500px; margin: 0 auto; }
+header { border-bottom: 2px solid var(--panel-border); padding-bottom: 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 10px; }
+header h1 { font-size: 26px; letter-spacing: 2px; color: var(--text-main); }
+header h1 span { color: var(--accent-green); }
+.system-status { font-size: 14px; color: var(--text-muted); text-align: right; }
+.nav-link { font-size: 13px; color: var(--accent-blue); text-decoration: underline; }
+.dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 25px; margin-bottom: 30px; }
+@media (min-width: 1024px) { .dashboard-grid { grid-template-columns: 420px 1fr; } }
+.panel { background-color: var(--panel-bg); border: 1px solid var(--panel-border); padding: 24px; border-radius: 4px; position: relative; }
+.panel-title { font-size: 16px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px dashed var(--panel-border); color: var(--text-main); display: flex; justify-content: space-between; }
+.control-group { margin-bottom: 25px; }
+.control-group:last-child { margin-bottom: 0; }
+.control-label { font-size: 14px; text-transform: uppercase; color: var(--text-main); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+.explainer { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.4; }
+.explainer .shared-tag { color: var(--accent-amber); text-transform: uppercase; font-weight: bold; }
+.control-row { display: flex; gap: 15px; align-items: center; }
+.input-slider { flex: 1; height: 6px; background: #181824; outline: none; -webkit-appearance: none; border-radius: 3px; }
+.input-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: var(--accent-blue); cursor: pointer; border-radius: 50%; }
+.number-input { width: 80px; background: #14141c; border: 1px solid var(--panel-border); color: var(--accent-blue); padding: 6px; font-size: 14px; font-weight: bold; text-align: center; outline: none; border-radius: 3px; }
+.outputs-container { display: grid; grid-template-columns: 1fr; gap: 20px; }
+@media (min-width: 768px) { .outputs-container { grid-template-columns: repeat(3, 1fr); } }
+.output-card { background: #09090d; border: 1px solid var(--panel-border); padding: 18px; border-radius: 2px; }
+.output-card.positive { border-left: 4px solid var(--accent-green); }
+.output-card.leakage { border-left: 4px solid var(--accent-red); }
+.output-card.info { border-left: 4px solid var(--accent-blue); }
+.output-num { font-size: 26px; font-weight: bold; margin-top: 8px; letter-spacing: -0.5px; }
+.positive .output-num { color: var(--accent-green); }
+.leakage .output-num { color: var(--accent-red); }
+.info .output-num { color: var(--accent-blue); }
+.output-desc { font-size: 13px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; }
+.chart-wrapper { margin-top: 25px; background: #09090d; border: 1px solid var(--panel-border); padding: 20px; position: relative; }
+canvas { width: 100%; height: 350px; display: block; }
+.note-box { background: #14141c; border: 1px solid var(--panel-border); padding: 15px; font-size: 12px; color: var(--text-muted); margin-top: 15px; line-height: 1.5; }
+.note-box strong { color: var(--accent-amber); }
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<div>
+<h1>ANTIMATTER // <span>CUMULATIVE ROI ENGINE</span></h1>
+</div>
+<div class="system-status">
+SYSTEM STATUS: OPERATIONAL // LEAD-GEN ACQUISITION MODEL V1.0<br>
+<a class="nav-link" href="index.html">&larr; Back to Market Penetration Engine</a>
+</div>
+</header>
+
+<div class="dashboard-grid">
+<div class="sidebar-controls">
+<div class="panel" style="margin-bottom: 20px;">
+<div class="panel-title"><span>Acquisition Funnel</span></div>
+<div class="control-group">
+<div class="control-label">New Leads / Month</div>
+<div class="explainer">Fresh leads entering the funnel each month.</div>
+<div class="control-row">
+<input type="range" id="range-leads" class="input-slider" min="1" max="50" value="5">
+<input type="number" id="num-leads" class="number-input" min="1" max="500" value="5">
+</div>
+</div>
+<div class="control-group">
+<div class="control-label">Drop-off After Call (%)</div>
+<div class="explainer">Share of leads that don't proceed past the sales call.</div>
+<div class="control-row">
+<input type="range" id="range-churncall" class="input-slider" min="0" max="95" value="50">
+<input type="number" id="num-churncall" class="number-input" min="0" max="99" value="50">
+</div>
+</div>
+<div class="control-group">
+<div class="control-label">Drop-off After Trial (%)</div>
+<div class="explainer">Share of remaining leads that don't convert after the trial.</div>
+<div class="control-row">
+<input type="range" id="range-churntrial" class="input-slider" min="0" max="95" value="30">
+<input type="number" id="num-churntrial" class="number-input" min="0" max="99" value="30">
+</div>
+</div>
+</div>
+
+<div class="panel" style="margin-bottom: 20px;">
+<div class="panel-title"><span>Retention</span></div>
+<div class="control-group">
+<div class="control-label">Monthly Client Churn (%)</div>
+<div class="explainer">Share of paying clients who cancel each month.</div>
+<div class="control-row">
+<input type="range" id="range-churnmonthly" class="input-slider" min="0" max="30" value="6">
+<input type="number" id="num-churnmonthly" class="number-input" min="0" max="50" value="6">
+</div>
+</div>
+</div>
+
+<div class="panel" style="margin-bottom: 20px;">
+<div class="panel-title"><span>Pricing (shared with Page 1)</span></div>
+<div class="control-group">
+<div class="control-label">Take Rate — P_take (%)</div>
+<div class="explainer"><span class="shared-tag">Shared variable</span> — same P_take as the Market Penetration Engine.</div>
+<div class="control-row">
+<input type="range" id="range-ptake" class="input-slider" min="1" max="90" value="15">
+<input type="number" id="num-ptake" class="number-input" min="1" max="90" value="15">
+</div>
+</div>
+<div class="control-group">
+<div class="control-label">Avg Client Monthly Value ($)</div>
+<div class="explainer"><span class="shared-tag">Shared variable</span> — corresponds to Gross / B_m in the automation calculator: the client's total monthly value before the take rate is applied.</div>
+<div class="control-row">
+<input type="range" id="range-clientvalue" class="input-slider" min="200" max="5000" step="50" value="1000">
+<input type="number" id="num-clientvalue" class="number-input" min="200" max="5000" value="1000">
+</div>
+</div>
+</div>
+
+<div class="panel">
+<div class="panel-title"><span>Costs & Horizon</span></div>
+<div class="control-group">
+<div class="control-label">Integration Fee — I0 ($)</div>
+<div class="explainer">One-time revenue paid by the client at conversion. Defaults to $600.</div>
+<div class="control-row">
+<input type="range" id="range-i0" class="input-slider" min="0" max="5000" step="50" value="600">
+<input type="number" id="num-i0" class="number-input" min="0" max="5000" value="600">
+</div>
+</div>
+<div class="control-group">
+<div class="control-label">Infra Cost ($/mo, company-wide)</div>
+<div class="explainer">Fixed cost to keep the technology running, independent of client count.</div>
+<div class="control-row">
+<input type="number" id="num-infra" class="number-input" min="0" max="1000" value="30">
+</div>
+</div>
+<div class="control-group">
+<div class="control-label">Support Cost ($/client/mo)</div>
+<div class="explainer">Cost per active client for support and maintenance.</div>
+<div class="control-row">
+<input type="number" id="num-supportcost" class="number-input" min="0" max="500" value="30">
+</div>
+</div>
+<div class="control-group">
+<div class="control-label">Horizon (Months)</div>
+<div class="explainer">Simulation length in months.</div>
+<div class="control-row">
+<input type="range" id="range-horizon" class="input-slider" min="1" max="24" value="6">
+<input type="number" id="num-horizon" class="number-input" min="1" max="24" value="6">
+</div>
+</div>
+</div>
+</div>
+
+<div class="main-outputs">
+<div class="panel" style="margin-bottom: 25px;">
+<div class="panel-title">Group A: Cumulative Position (End of Horizon)</div>
+<div class="outputs-container">
+<div class="output-card positive">
+<div class="output-desc">Cumulative Net ROI</div>
+<div class="output-num" id="out-roi">0%</div>
+</div>
+<div class="output-card positive">
+<div class="output-desc">Active Paying Clients</div>
+<div class="output-num" id="out-active">0</div>
+</div>
+<div class="output-card info">
+<div class="output-desc">Payback Month</div>
+<div class="output-num" id="out-payback" style="font-size:18px;">N/A</div>
+</div>
+</div>
+</div>
+
+<div class="panel" style="margin-bottom: 25px;">
+<div class="panel-title">Group B: Monthly Flow (Latest Month)</div>
+<div class="outputs-container">
+<div class="output-card positive">
+<div class="output-desc">Monthly Revenue</div>
+<div class="output-num" id="out-monthly-rev">$0</div>
+</div>
+<div class="output-card leakage">
+<div class="output-desc">Monthly Recurring Cost</div>
+<div class="output-num" id="out-monthly-cost">$0</div>
+</div>
+<div class="output-card positive">
+<div class="output-desc">Cumulative Net Cash Flow</div>
+<div class="output-num" id="out-cum-flow">$0</div>
+</div>
+</div>
+</div>
+
+<div class="chart-wrapper">
+<div style="font-size: 13px; text-transform: uppercase; color: var(--text-main); margin-bottom: 15px; font-weight: bold;">
+Cumulative ROI Over Time (X: Month, Y: ROI %)
+</div>
+<canvas id="roiChart"></canvas>
+<div class="note-box">
+Tracks total profit relative to total cost since month 1, updated every month. See the Open Math section at the bottom of the page for the full formulas behind this chart.
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="tech-spec-trigger" onclick="toggleTechSpec()" style="margin-top: 40px; text-align: center; font-size: 14px; color: var(--text-muted); cursor: pointer; text-transform: uppercase; text-decoration: underline; padding: 10px;">[ + ] Show Open Math (Full Formulas Behind This Simulation)</div>
+<div id="tech-spec" class="tech-spec-panel" style="margin-top: 25px; background: #09090d; border: 1px solid var(--panel-border); padding: 30px; font-size: 14px; color: var(--text-muted); display: none;">
+<h3 style="color: var(--text-main); margin-bottom: 20px; font-size: 18px; text-transform: uppercase; border-bottom: 1px solid var(--panel-border); padding-bottom: 10px;">Open Math — Full Formulas</h3>
+
+<div class="formula-block" style="margin-bottom: 25px; background: #14141c; border-left: 3px solid var(--accent-blue); padding: 15px;">
+<code style="display: block; font-size: 15px; color: var(--accent-blue); margin-bottom: 10px; font-weight: bold;">Conversion Rate = (1 - Drop-off After Call) &times; (1 - Drop-off After Trial)</code>
+<p><strong style="color: var(--text-main);">New Paying Clients / Month</strong> = New Leads / Month &times; Conversion Rate</p>
+</div>
+
+<div class="formula-block" style="margin-bottom: 25px; background: #14141c; border-left: 3px solid var(--accent-blue); padding: 15px;">
+<code style="display: block; font-size: 15px; color: var(--accent-blue); margin-bottom: 10px; font-weight: bold;">Active Clients(month) = Active Clients(month-1) &times; (1 - Monthly Churn) + New Paying Clients / Month</code>
+<p>Existing base decays by churn each month, then new conversions are added.</p>
+</div>
+
+<div class="formula-block" style="margin-bottom: 25px; background: #14141c; border-left: 3px solid var(--accent-blue); padding: 15px;">
+<code style="display: block; font-size: 15px; color: var(--accent-blue); margin-bottom: 10px; font-weight: bold;">Monthly Revenue = (Active Clients &times; Avg Client Monthly Value &times; P_take) + (New Paying Clients / Month &times; Integration Fee I0)</code>
+<p>Recurring revenue from the active client base, plus one-time integration revenue from clients converting that month.</p>
+</div>
+
+<div class="formula-block" style="margin-bottom: 25px; background: #14141c; border-left: 3px solid var(--accent-blue); padding: 15px;">
+<code style="display: block; font-size: 15px; color: var(--accent-blue); margin-bottom: 10px; font-weight: bold;">Monthly Cost = Infra Cost + (Active Clients &times; Support Cost per Client)</code>
+<p>Company-wide infrastructure cost plus per-client support cost. The integration fee is revenue, not a cost — it is never subtracted here.</p>
+</div>
+
+<div class="formula-block" style="margin-bottom: 25px; background: #14141c; border-left: 3px solid var(--accent-blue); padding: 15px;">
+<code style="display: block; font-size: 15px; color: var(--accent-blue); margin-bottom: 10px; font-weight: bold;">Cumulative ROI(month) = (Σ Revenue(1..month) - Σ Cost(1..month)) / Σ Cost(1..month) &times; 100%</code>
+<p>Running total of net profit divided by running total of cost, from month 1 up to the current month. This is the value plotted on the chart above.</p>
+</div>
+
+<div class="formula-block" style="background: #14141c; border-left: 3px solid var(--accent-blue); padding: 15px;">
+<code style="display: block; font-size: 15px; color: var(--accent-blue); margin-bottom: 10px; font-weight: bold;">Payback Month = first month where Σ Revenue(1..month) - Σ Cost(1..month) &gt; 0</code>
+<p>The month at which cumulative net cash flow first turns positive.</p>
+</div>
+</div>
+
+<script>
+const inputs = ['leads','churncall','churntrial','churnmonthly','ptake','clientvalue','i0','infra','supportcost','horizon'];
+const vals = {};
+
+inputs.forEach(id => {
+const rangeObj = document.getElementById(`range-${id}`);
+const numObj = document.getElementById(`num-${id}`);
+if (rangeObj) {
+rangeObj.addEventListener('input', (e) => { numObj.value = e.target.value; runSimulation(); });
+}
+numObj.addEventListener('input', (e) => {
+if (rangeObj) rangeObj.value = e.target.value;
+runSimulation();
+});
+});
+
+const canvas = document.getElementById('roiChart');
+const ctx = canvas.getContext('2d');
+
+function toggleTechSpec() {
+const p = document.getElementById('tech-spec');
+p.style.display = p.style.display === 'block' ? 'none' : 'block';
+}
+
+function formatMoney(num) {
+let isNegative = num < 0;
+let absNum = Math.abs(num);
+let formatted = "";
+if (absNum >= 1e9) formatted = (absNum / 1e9).toFixed(1) + 'B';
+else if (absNum >= 1e6) formatted = (absNum / 1e6).toFixed(1) + 'M';
+else if (absNum >= 1e3) formatted = (absNum / 1e3).toFixed(1) + 'K';
+else formatted = absNum.toFixed(0);
+return (isNegative ? "-" : "") + formatted;
+}
+
+function readVals() {
+inputs.forEach(id => {
+const el = document.getElementById(`num-${id}`);
+vals[id] = parseFloat(el.value) || 0;
+});
+}
+
+function runSimulation() {
+readVals();
+
+const churnCall = vals.churncall / 100;
+const churnTrial = vals.churntrial / 100;
+const churnMonthly = vals.churnmonthly / 100;
+const pTake = vals.ptake / 100;
+const clientValue = vals.clientvalue;
+const i0 = vals.i0;
+const infra = vals.infra;
+const supportCost = vals.supportcost;
+const horizon = vals.horizon;
+
+// New paying clients generated per month from the funnel
+const convRate = (1 - churnCall) * (1 - churnTrial);
+const newClientsPerMonth = vals.leads * convRate;
+
+let activeClients = 0;
+let cumRevenue = 0;
+let cumCost = 0;
+let paybackMonth = null;
+let roiSeries = [];
+let latestMonthlyRev = 0;
+let latestMonthlyCost = 0;
+
+for (let m = 1; m <= horizon; m++) {
+// churn existing base, then add new clients
+activeClients = activeClients * (1 - churnMonthly) + newClientsPerMonth;
+
+const monthlyRecurringRevenue = activeClients * clientValue * pTake;
+const monthlyIntegrationRevenue = newClientsPerMonth * i0;
+const monthlyRevenue = monthlyRecurringRevenue + monthlyIntegrationRevenue;
+const monthlyCost = infra + activeClients * supportCost;
+
+cumRevenue += monthlyRevenue;
+cumCost += monthlyCost;
+
+const netCumFlow = cumRevenue - cumCost;
+const roi = cumCost > 0 ? (netCumFlow / cumCost) * 100 : 0;
+roiSeries.push(roi);
+
+if (paybackMonth === null && netCumFlow > 0) {
+paybackMonth = m;
+}
+
+latestMonthlyRev = monthlyRevenue;
+latestMonthlyCost = monthlyCost;
+}
+
+const finalROI = roiSeries.length ? roiSeries[roiSeries.length - 1] : 0;
+const finalCumFlow = cumRevenue - cumCost;
+
+document.getElementById('out-roi').innerText = `${finalROI.toFixed(0)}%`;
+document.getElementById('out-active').innerText = Math.round(activeClients).toLocaleString();
+document.getElementById('out-payback').innerText = paybackMonth !== null ? `Month ${paybackMonth}` : 'Not reached';
+document.getElementById('out-monthly-rev').innerText = `$${formatMoney(latestMonthlyRev)}`;
+document.getElementById('out-monthly-cost').innerText = `$${formatMoney(latestMonthlyCost)}`;
+document.getElementById('out-cum-flow').innerText = `$${formatMoney(finalCumFlow)}`;
+
+renderChart(roiSeries);
+}
+
+function renderChart(dataPoints) {
+const width = canvas.offsetWidth;
+const height = canvas.offsetHeight;
+canvas.width = width * window.devicePixelRatio;
+canvas.height = height * window.devicePixelRatio;
+ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+ctx.clearRect(0, 0, width, height);
+
+const paddingLeft = 60;
+const paddingBottom = 25;
+const paddingTop = 15;
+const paddingRight = 15;
+const graphWidth = width - paddingLeft - paddingRight;
+const graphHeight = height - paddingTop - paddingBottom;
+
+const minVal = Math.min(...dataPoints, 0);
+const maxVal = Math.max(...dataPoints, 10);
+
+ctx.fillStyle = '#94a3b8';
+ctx.font = '12px Courier New';
+ctx.strokeStyle = '#1a1a24';
+ctx.lineWidth = 1;
+
+const gridLinesCountY = 5;
+for (let i = 0; i <= gridLinesCountY; i++) {
+let frac = i / gridLinesCountY;
+let y = paddingTop + graphHeight - frac * graphHeight;
+let valY = minVal + (maxVal - minVal) * frac;
+ctx.textAlign = "right";
+ctx.fillText(valY.toFixed(0) + "%", paddingLeft - 10, y + 4);
+ctx.beginPath();
+ctx.moveTo(paddingLeft, y);
+ctx.lineTo(width - paddingRight, y);
+ctx.stroke();
+}
+
+const gridLinesCountX = Math.min(dataPoints.length - 1, 6);
+for (let i = 0; i <= gridLinesCountX; i++) {
+let x = paddingLeft + (i / gridLinesCountX) * graphWidth;
+let monthMarker = Math.round((dataPoints.length - 1) * (i / gridLinesCountX)) + 1;
+ctx.textAlign = "center";
+ctx.fillText("m" + monthMarker, x, height - 5);
+}
+
+if (dataPoints.length === 0) return;
+
+// zero line
+if (minVal < 0 && maxVal > 0) {
+let zeroFrac = (0 - minVal) / (maxVal - minVal);
+let zeroY = paddingTop + graphHeight - zeroFrac * graphHeight;
+ctx.strokeStyle = '#ff3366';
+ctx.beginPath();
+ctx.moveTo(paddingLeft, zeroY);
+ctx.lineTo(width - paddingRight, zeroY);
+ctx.stroke();
+}
+
+ctx.beginPath();
+ctx.lineWidth = 3;
+ctx.strokeStyle = '#00ff66';
+ctx.lineJoin = 'round';
+for (let i = 0; i < dataPoints.length; i++) {
+let x = paddingLeft + (dataPoints.length === 1 ? 0 : (graphWidth / (dataPoints.length - 1)) * i);
+let frac = (dataPoints[i] - minVal) / (maxVal - minVal);
+let y = paddingTop + graphHeight - frac * graphHeight;
+if (i === 0) ctx.moveTo(x, y);
+else ctx.lineTo(x, y);
+}
+ctx.stroke();
+
+ctx.lineTo(paddingLeft + graphWidth, paddingTop + graphHeight);
+ctx.lineTo(paddingLeft, paddingTop + graphHeight);
+ctx.fillStyle = 'rgba(0, 255, 102, 0.05)';
+ctx.fill();
+
+ctx.strokeStyle = '#94a3b8';
+ctx.lineWidth = 1;
+ctx.beginPath();
+ctx.moveTo(paddingLeft, paddingTop);
+ctx.lineTo(paddingLeft, paddingTop + graphHeight);
+ctx.lineTo(paddingLeft + graphWidth, paddingTop + graphHeight);
+ctx.stroke();
+}
+
+runSimulation();
+window.addEventListener('resize', runSimulation);
+</script>
+</body>
+</html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ANTIMATTER // Cumulative ROI Simulation Engine</title>
 <style>
