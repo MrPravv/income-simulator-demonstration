@@ -1,0 +1,1068 @@
+{
+  "name": "Antimatter — Onboarding Backend",
+  "nodes": [
+    {
+      "id": "ob-webhook",
+      "name": "Onboarding Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "onboarding-create-client",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "ob-validate",
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        0
+      ],
+      "parameters": {
+        "jsCode": "\nconst d = $json.body || $json;\n\nconst required = ['client_name', 'sheets_id', 'instructions_file_id'];\nfor (const field of required) {\n  if (!d[field] || !d[field].trim())\n    throw new Error(`Missing required field: ${field}`);\n}\n\nconst hasWA = !!(d.wa_api_key && d.wa_api_key.trim());\nconst hasIG = !!(d.meta_token && d.meta_token.trim());\nif (!hasWA && !hasIG) throw new Error('At least one channel required');\n\nconst translit = {\n  'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'yo','ж':'zh',\n  'з':'z','и':'i','й':'y','к':'k','л':'l','м':'m','н':'n','о':'o',\n  'п':'p','р':'r','с':'s','т':'t','у':'u','ф':'f','х':'kh','ц':'ts',\n  'ч':'ch','ш':'sh','щ':'sch','ъ':'','ы':'y','ь':'','э':'e','ю':'yu','я':'ya'\n};\nconst slug = d.client_name.toLowerCase()\n  .split('').map(c => translit[c] || c).join('')\n  .replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-')\n  .replace(/^-|-$/g,'').slice(0,30);\n\nreturn [{ json: {\n  client_name:           d.client_name.trim(),\n  sheets_id:             d.sheets_id.trim(),\n  instructions_file_id:  d.instructions_file_id.trim(),\n  kb_file_ids:           (d.kb_file_ids || '').trim(),\n  meta_token:            (d.meta_token || '').trim(),\n  wa_api_key:            (d.wa_api_key || '').trim(),\n  tg_chat_id:            (d.tg_chat_id || '').trim(),\n  assigned_to:           (d.assigned_to || 'unknown').trim(),\n  has_wa: hasWA, has_ig: hasIG, slug\n}}];\n"
+      }
+    },
+    {
+      "id": "ob-read-registry",
+      "name": "Read Registry",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        400,
+        0
+      ],
+      "parameters": {
+        "operation": "getRows",
+        "documentId": {
+          "mode": "id",
+          "value": "16Am6z7hzN7_NNLBUnXaTjvERO3sCOvmRvXCAzxnkSUY"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Клиенты",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "id": "ob-gen-ids",
+      "name": "Generate IDs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        600,
+        0
+      ],
+      "parameters": {
+        "jsCode": "\nconst rows = $('Read Registry').all();\nconst data = $('Validate Input').item.json;\n\n// Находим максимальный numeric_id\nconst maxId = rows.reduce((max, r) => {\n  const id = parseInt(r.json.numeric_id || 0);\n  return isNaN(id) ? max : Math.max(max, id);\n}, 0);\n\nconst numeric_id = maxId + 1;\n\n// Проверяем уникальность slug\nconst existingSlugs = new Set(rows.map(r => r.json.slug || ''));\nlet slug = data.slug;\nlet suffix = 1;\nwhile (existingSlugs.has(slug)) {\n  slug = `${data.slug}-${suffix}`;\n  suffix++;\n}\n\nreturn [{ json: {\n  ...data,\n  numeric_id,\n  slug,\n  workflow_name: `${numeric_id}-${slug}`\n}}];\n"
+      }
+    },
+    {
+      "id": "ob-read-template",
+      "name": "Read Template",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        800,
+        0
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=http://localhost:5678/api/v1/workflows/dk8wf30tVHwyVmMz",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={$env.N8N_API_KEY}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "ob-personalize",
+      "name": "Personalize Workflow",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        0
+      ],
+      "parameters": {
+        "jsCode": "\nconst template = $json;\nconst d = $('Generate IDs').item.json;\n\n// Сериализуем в строку для замены плейсхолдеров\nlet wfStr = JSON.stringify(template);\n\n// ── Базовые плейсхолдеры ──────────────────────────────────────\nwfStr = wfStr.replaceAll('ВСТАВИТЬ_SHEETS_ID_КЛИЕНТА', d.sheets_id);\nwfStr = wfStr.replaceAll('ВСТАВИТЬ_INSTRUCTIONS_FILE_ID', d.instructions_file_id);\nwfStr = wfStr.replaceAll('ВСТАВИТЬ_META_ACCESS_TOKEN_КЛИЕНТА', d.meta_token || '');\nwfStr = wfStr.replaceAll('ВСТАВИТЬ_TELEGRAM_CHAT_ID_МЕНЕДЖЕРА', d.tg_chat_id || '');\nwfStr = wfStr.replaceAll('ВСТАВИТЬ_TELEGRAM_CHAT_ID_КЛИЕНТА', d.tg_chat_id || '');\n\n// ── Webhook пути ──────────────────────────────────────────────\nwfStr = wfStr.replaceAll('wa-CLIENT_ID', `wa-${d.slug}`);\nwfStr = wfStr.replaceAll('ig-CLIENT_ID', `ig-${d.slug}`);\n\n// ── KB File IDs ───────────────────────────────────────────────\nif (d.kb_file_ids) {\n  const ids = d.kb_file_ids.split(',').map(s => s.trim()).filter(Boolean);\n  const idsJson = ids.map(id => `\"${id}\"`).join(',\\n  ');\n  wfStr = wfStr.replaceAll(\n    '\"ВСТАВИТЬ_FILE_ID_1\"',\n    idsJson\n  );\n}\n\n// ── Имя workflow ──────────────────────────────────────────────\n// ── Antimatter Analytics (одна таблица на всю компанию) ──────\nconst analyticsId = process.env.N8N_ANTIMATTER_ANALYTICS_ID || 'ВСТАВИТЬ_ANTIMATTER_ANALYTICS_SHEETS_ID';\nwfStr = wfStr.replaceAll('ВСТАВИТЬ_ANTIMATTER_ANALYTICS_SHEETS_ID', analyticsId);\n\n// ── Числовой ID и slug клиента для аналитики ─────────────────\nwfStr = wfStr.replaceAll('ВСТАВИТЬ_NUMERIC_ID_КЛИЕНТА', String(d.numeric_id));\nwfStr = wfStr.replaceAll('ВСТАВИТЬ_SLUG_КЛИЕНТА',       d.slug);\nconst wf = JSON.parse(wfStr);\nwf.name = d.workflow_name;\nwf.active = false; // активируем отдельным шагом\n\n// ── Отключаем ненужные каналы ─────────────────────────────────\nconst WA_NODES = ['WhatsApp Webhook', 'Normalize WhatsApp', 'Send WhatsApp Reply', 'WA Webhook Response'];\nconst IG_NODES = ['Instagram Webhook', 'Normalize Instagram', 'Send Instagram Reply', 'IG Webhook Response', 'Is Meta Verification?', 'Send Verification Challenge'];\n\nif (!d.has_wa) {\n  wf.nodes = wf.nodes.map(n => {\n    if (WA_NODES.includes(n.name)) {\n      return { ...n, disabled: true };\n    }\n    return n;\n  });\n  console.log('WhatsApp канал отключён — wa_api_key не указан');\n}\n\nif (!d.has_ig) {\n  wf.nodes = wf.nodes.map(n => {\n    if (IG_NODES.includes(n.name)) {\n      return { ...n, disabled: true };\n    }\n    return n;\n  });\n  console.log('Instagram канал отключён — meta_token не указан');\n}\n\n// ── Убираем старый ID чтобы n8n создал новый ─────────────────\ndelete wf.id;\ndelete wf.meta;\n\nreturn [{ json: { workflow: wf, client_data: d } }];\n"
+      }
+    },
+    {
+      "id": "ob-create-wf",
+      "name": "Create Workflow",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1200,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=http://localhost:5678/api/v1/workflows",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={$env.N8N_API_KEY}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify($json.workflow) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "ob-check-creation",
+      "name": "Check Creation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1400,
+        0
+      ],
+      "parameters": {
+        "jsCode": "\nconst result = $json;\nif (!result.id) {\n  throw new Error('Workflow creation failed: ' + JSON.stringify(result));\n}\nconst client_data = $('Personalize Workflow').item.json.client_data;\nreturn [{ json: {\n  new_workflow_id: result.id,\n  new_workflow_name: result.name,\n  ...client_data\n}}];\n"
+      }
+    },
+    {
+      "id": "ob-activate",
+      "name": "Activate Workflow",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1600,
+        0
+      ],
+      "parameters": {
+        "method": "PUT",
+        "url": "=http://localhost:5678/api/v1/workflows/={ $json.new_workflow_id }/activate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={$env.N8N_API_KEY}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "ob-save-registry",
+      "name": "Save to Registry",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        1800,
+        0
+      ],
+      "parameters": {
+        "operation": "appendRow",
+        "documentId": {
+          "mode": "id",
+          "value": "16Am6z7hzN7_NNLBUnXaTjvERO3sCOvmRvXCAzxnkSUY"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Клиенты",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "numeric_id": "={{ $('Check Creation').item.json.numeric_id }}",
+            "slug": "={{ $('Check Creation').item.json.slug }}",
+            "client_name": "={{ $('Check Creation').item.json.client_name }}",
+            "status": "active",
+            "sheets_id": "={{ $('Check Creation').item.json.sheets_id }}",
+            "instructions_file_id": "={{ $('Check Creation').item.json.instructions_file_id }}",
+            "kb_file_ids": "={{ $('Check Creation').item.json.kb_file_ids }}",
+            "meta_token": "={{ $('Check Creation').item.json.meta_token }}",
+            "tg_chat_id": "={{ $('Check Creation').item.json.tg_chat_id }}",
+            "workflow_id": "={{ $('Check Creation').item.json.new_workflow_id }}",
+            "connected_at": "={{ new Date().toISOString() }}",
+            "assigned_to": "={{ $('Check Creation').item.json.assigned_to }}",
+            "updated_at": "={{ new Date().toISOString() }}"
+          }
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "id": "ob-success",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2000,
+        0
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, client_id: $('Check Creation').item.json.numeric_id, slug: $('Check Creation').item.json.slug, workflow_id: $('Check Creation').item.json.new_workflow_id, webhook_wa: 'https://6584916.xyz/webhook/wa-' + $('Check Creation').item.json.slug, webhook_ig: 'https://6584916.xyz/webhook/ig-' + $('Check Creation').item.json.slug }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "id": "ob-error",
+      "name": "Error Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        400,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: false, error: $json.message || 'Unknown error' }) }}",
+        "options": {
+          "responseCode": 400
+        }
+      }
+    },
+    {
+      "id": "ob-get-webhook",
+      "name": "Get Recent Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        600
+      ],
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "onboarding-get-recent",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "ob-get-registry",
+      "name": "Get Registry",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        200,
+        600
+      ],
+      "parameters": {
+        "operation": "getRows",
+        "documentId": {
+          "mode": "id",
+          "value": "16Am6z7hzN7_NNLBUnXaTjvERO3sCOvmRvXCAzxnkSUY"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Клиенты",
+          "mode": "name"
+        },
+        "options": {
+          "limit": 100
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "id": "ob-format-clients",
+      "name": "Format Clients",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        600
+      ],
+      "parameters": {
+        "jsCode": "\nconst rows    = $('Get Registry').all();\nconst filterBy = $('Get Recent Webhook').item.json.query?.assigned_to || '';\n\nconst clients = rows\n  .filter(r => r.json.status !== 'deleted')\n  .filter(r => !filterBy || r.json.assigned_to === filterBy)\n  .map(r => ({\n    numeric_id:           r.json.numeric_id,\n    slug:                 r.json.slug,\n    client_name:          r.json.client_name,\n    status:               r.json.status,\n    sheets_id:            r.json.sheets_id,\n    instructions_file_id: r.json.instructions_file_id,\n    kb_file_ids:          r.json.kb_file_ids || '',\n    meta_token:           r.json.meta_token || '',\n    wa_api_key:           r.json.wa_api_key || '',\n    tg_chat_id:           r.json.tg_chat_id || '',\n    workflow_id:          r.json.workflow_id,\n    assigned_to:          r.json.assigned_to || '',\n    connected_at:         r.json.connected_at,\n    updated_at:           r.json.updated_at || '',\n    page_token:           r.json.page_token || '',\n    token_permanent:      r.json.token_permanent || '',\n  }));\n\nreturn [{ json: { clients } }];\n"
+      }
+    },
+    {
+      "id": "ob-get-respond",
+      "name": "Get Recent Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        600,
+        600
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, clients: $json.clients }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "id": "ob-update-webhook",
+      "name": "Update Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        1000
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "onboarding-update-client",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "ob-validate-update",
+      "name": "Validate Update",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        1000
+      ],
+      "parameters": {
+        "jsCode": "\nconst d = $json.body || $json;\n\nif (!d.numeric_id) throw new Error('numeric_id required');\nif (!d.workflow_id) throw new Error('workflow_id required');\n\nconst required = ['client_name', 'sheets_id', 'instructions_file_id'];\nfor (const field of required) {\n  if (!d[field] || !d[field].trim()) {\n    throw new Error(`Missing required field: ${field}`);\n  }\n}\n\nconst hasWA = !!(d.wa_api_key && d.wa_api_key.trim());\nconst hasIG = !!(d.meta_token && d.meta_token.trim());\nif (!hasWA && !hasIG) {\n  throw new Error('At least one channel required');\n}\n\n// Транслитерация для slug\nconst translit = {\n  'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'yo','ж':'zh',\n  'з':'z','и':'i','й':'y','к':'k','л':'l','м':'m','н':'n','о':'o',\n  'п':'p','р':'r','с':'s','т':'t','у':'u','ф':'f','х':'kh','ц':'ts',\n  'ч':'ch','ш':'sh','щ':'sch','ъ':'','ы':'y','ь':'','э':'e','ю':'yu','я':'ya'\n};\nconst slug = d.slug || d.client_name.toLowerCase()\n  .split('').map(ch => translit[ch] || ch).join('')\n  .replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-')\n  .replace(/^-|-$/g, '').slice(0, 30);\n\nreturn [{ json: {\n  numeric_id:           String(d.numeric_id),\n  workflow_id:          String(d.workflow_id),\n  slug,\n  client_name:          d.client_name.trim(),\n  sheets_id:            d.sheets_id.trim(),\n  instructions_file_id: d.instructions_file_id.trim(),\n  kb_file_ids:          (d.kb_file_ids || '').trim(),\n  meta_token:           (d.meta_token || '').trim(),\n  wa_api_key:           (d.wa_api_key || '').trim(),\n  tg_chat_id:           (d.tg_chat_id || '').trim(),\n  has_wa:               hasWA,\n  has_ig:               hasIG,\n  workflow_name:        `${d.numeric_id}-${slug}`,\n  assigned_to: (d.assigned_to || 'unknown').trim()\n}}];\n"
+      }
+    },
+    {
+      "id": "ob-read-template-update",
+      "name": "Read Template for Update",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        400,
+        1000
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "=http://localhost:5678/api/v1/workflows/dk8wf30tVHwyVmMz",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={$env.N8N_API_KEY}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "ob-personalize-update",
+      "name": "Personalize Update",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        600,
+        1000
+      ],
+      "parameters": {
+        "jsCode": "\nconst template = $json;\nconst d = $('Validate Update').item.json;\n\nlet wfStr = JSON.stringify(template);\n\nwfStr = wfStr.replaceAll('ВСТАВИТЬ_SHEETS_ID_КЛИЕНТА', d.sheets_id);\nwfStr = wfStr.replaceAll('ВСТАВИТЬ_INSTRUCTIONS_FILE_ID', d.instructions_file_id);\nwfStr = wfStr.replaceAll('ВСТАВИТЬ_META_ACCESS_TOKEN_КЛИЕНТА', d.meta_token || '');\nwfStr = wfStr.replaceAll('ВСТАВИТЬ_TELEGRAM_CHAT_ID_МЕНЕДЖЕРА', d.tg_chat_id || '');\nwfStr = wfStr.replaceAll('ВСТАВИТЬ_TELEGRAM_CHAT_ID_КЛИЕНТА', d.tg_chat_id || '');\nwfStr = wfStr.replaceAll('wa-CLIENT_ID', `wa-${d.slug}`);\nwfStr = wfStr.replaceAll('ig-CLIENT_ID', `ig-${d.slug}`);\n\nif (d.kb_file_ids) {\n  const ids = d.kb_file_ids.split(',').map(s => s.trim()).filter(Boolean);\n  const idsJson = ids.map(id => `\"${id}\"`).join(',\\n  ');\n  wfStr = wfStr.replaceAll('\"ВСТАВИТЬ_FILE_ID_1\"', idsJson);\n}\n\n// ── Antimatter Analytics ──────────────────────────────────────\nconst analyticsId = process.env.N8N_ANTIMATTER_ANALYTICS_ID || 'ВСТАВИТЬ_ANTIMATTER_ANALYTICS_SHEETS_ID';\nwfStr = wfStr.replaceAll('ВСТАВИТЬ_ANTIMATTER_ANALYTICS_SHEETS_ID', analyticsId);\nwfStr = wfStr.replaceAll('ВСТАВИТЬ_NUMERIC_ID_КЛИЕНТА', String(d.numeric_id));\nwfStr = wfStr.replaceAll('ВСТАВИТЬ_SLUG_КЛИЕНТА',       d.slug);\nconst wf = JSON.parse(wfStr);\nwf.name = d.workflow_name;\n\nconst WA_NODES = ['WhatsApp Webhook', 'Normalize WhatsApp', 'Send WhatsApp Reply', 'WA Webhook Response'];\nconst IG_NODES = ['Instagram Webhook', 'Normalize Instagram', 'Send Instagram Reply', 'IG Webhook Response', 'Is Meta Verification?', 'Send Verification Challenge'];\n\nif (!d.has_wa) {\n  wf.nodes = wf.nodes.map(n => WA_NODES.includes(n.name) ? {...n, disabled: true} : n);\n}\nif (!d.has_ig) {\n  wf.nodes = wf.nodes.map(n => IG_NODES.includes(n.name) ? {...n, disabled: true} : n);\n}\n\n// Для обновления НЕ удаляем id — он нужен для PATCH\nreturn [{ json: { workflow: wf, client_data: d } }];\n"
+      }
+    },
+    {
+      "id": "ob-patch-workflow",
+      "name": "Patch Workflow",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        800,
+        1000
+      ],
+      "parameters": {
+        "method": "PUT",
+        "url": "=http://localhost:5678/api/v1/workflows/={ $json.client_data.workflow_id }",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={$env.N8N_API_KEY}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify($json.workflow) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "ob-update-registry",
+      "name": "Update Registry Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        1000,
+        1000
+      ],
+      "parameters": {
+        "operation": "updateRow",
+        "documentId": {
+          "mode": "id",
+          "value": "16Am6z7hzN7_NNLBUnXaTjvERO3sCOvmRvXCAzxnkSUY"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Клиенты",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "client_name": "={{ $('Validate Update').item.json.client_name }}",
+            "sheets_id": "={{ $('Validate Update').item.json.sheets_id }}",
+            "instructions_file_id": "={{ $('Validate Update').item.json.instructions_file_id }}",
+            "kb_file_ids": "={{ $('Validate Update').item.json.kb_file_ids }}",
+            "meta_token": "={{ $('Validate Update').item.json.meta_token }}",
+            "wa_api_key": "={{ $('Validate Update').item.json.wa_api_key }}",
+            "tg_chat_id": "={{ $('Validate Update').item.json.tg_chat_id }}",
+            "status": "active",
+            "updated_at": "={{ new Date().toISOString() }}"
+          }
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "id": "ob-update-respond",
+      "name": "Update Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1200,
+        1000
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, numeric_id: $('Validate Update').item.json.numeric_id, slug: $('Validate Update').item.json.slug, workflow_id: $('Validate Update').item.json.workflow_id }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "id": "ob-delete-webhook",
+      "name": "Delete Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        1400
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "onboarding-delete-client",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "ob-validate-delete",
+      "name": "Validate Delete",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        1400
+      ],
+      "parameters": {
+        "jsCode": "\nconst d = $json.body || $json;\nif (!d.numeric_id) throw new Error('numeric_id required');\nif (!d.workflow_id) throw new Error('workflow_id required');\nreturn [{ json: {\n  numeric_id: String(d.numeric_id),\n  workflow_id: String(d.workflow_id)\n}}];\n"
+      }
+    },
+    {
+      "id": "ob-deactivate-wf",
+      "name": "Deactivate Workflow",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        400,
+        1400
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=http://localhost:5678/api/v1/workflows/={ $json.workflow_id }/deactivate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={$env.N8N_API_KEY}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "ob-mark-deleted",
+      "name": "Mark Deleted",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        600,
+        1400
+      ],
+      "parameters": {
+        "operation": "updateRow",
+        "documentId": {
+          "mode": "id",
+          "value": "16Am6z7hzN7_NNLBUnXaTjvERO3sCOvmRvXCAzxnkSUY"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Клиенты",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "deleted",
+            "deleted_at": "={{ new Date().toISOString() }}"
+          }
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "id": "ob-delete-respond",
+      "name": "Delete Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        800,
+        1400
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, numeric_id: $('Validate Delete').item.json.numeric_id, deleted: true }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "id": "ob-oauth-webhook",
+      "name": "OAuth URL Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        1800
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "onboarding-generate-oauth",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "ob-oauth-validate",
+      "name": "OAuth Validate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        1800
+      ],
+      "parameters": {
+        "jsCode": "\nconst d = $json.body || $json;\nif (!d.numeric_id) throw new Error('numeric_id required');\nif (!d.slug)       throw new Error('slug required');\nreturn [{ json: {\n  numeric_id: String(d.numeric_id),\n  slug:       d.slug.trim()\n}}];\n"
+      }
+    },
+    {
+      "id": "ob-oauth-build",
+      "name": "Build OAuth URL",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        1800
+      ],
+      "parameters": {
+        "jsCode": "\nconst d = $json;\nconst META_APP_ID   = process.env.N8N_META_APP_ID   || 'ВСТАВИТЬ_META_APP_ID';\nconst REDIRECT_URI  = 'https://6584916.xyz/webhook/meta-oauth-callback';\nconst SCOPE = 'pages_messaging,pages_show_list,pages_manage_metadata';\n\n// state = numeric_id|slug — для идентификации клиента при callback\nconst state = encodeURIComponent(d.numeric_id + '|' + d.slug);\n\nconst oauth_url =\n  'https://www.facebook.com/dialog/oauth?' +\n  'client_id='     + encodeURIComponent(META_APP_ID) +\n  '&redirect_uri=' + encodeURIComponent(REDIRECT_URI) +\n  '&scope='        + encodeURIComponent(SCOPE) +\n  '&response_type=code' +\n  '&state='        + state;\n\nreturn [{ json: {\n  numeric_id:  d.numeric_id,\n  slug:        d.slug,\n  oauth_url,\n  expires_at:  new Date(Date.now() + 10 * 60 * 1000).toISOString() // ссылка действует 10 минут\n} }];\n"
+      }
+    },
+    {
+      "id": "ob-oauth-respond",
+      "name": "OAuth URL Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        600,
+        1800
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, oauth_url: $json.oauth_url, numeric_id: $json.numeric_id, expires_at: $json.expires_at }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "id": "ob-status-webhook",
+      "name": "Token Status Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        2100
+      ],
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "onboarding-token-status",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "ob-status-read",
+      "name": "Status Read Registry",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        200,
+        2100
+      ],
+      "parameters": {
+        "operation": "getRows",
+        "documentId": {
+          "mode": "id",
+          "value": "16Am6z7hzN7_NNLBUnXaTjvERO3sCOvmRvXCAzxnkSUY"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Клиенты",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "id": "ob-status-check",
+      "name": "Check Token Status",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        2100
+      ],
+      "parameters": {
+        "jsCode": "\nconst numeric_id = $('Token Status Webhook').item.json.query?.numeric_id || '';\nif (!numeric_id) throw new Error('numeric_id required');\n\nconst rows = $('Status Read Registry').all();\nconst client = rows.find(r => String(r.json.numeric_id) === String(numeric_id));\n\nif (!client) {\n  return [{ json: { found: false, has_token: false } }];\n}\n\nconst has_token = !!(client.json.page_token && client.json.page_token.trim());\nconst token_permanent = client.json.token_permanent === 'true' || client.json.token_permanent === true;\n\nreturn [{ json: {\n  found:           true,\n  has_token,\n  token_permanent,\n  token_expires:   client.json.token_expires || '',\n  page_name:       client.json.page_name || '',\n  ig_account_id:   client.json.ig_account_id || '',\n  connected_at:    client.json.connected_at || '',\n}}];\n"
+      }
+    },
+    {
+      "id": "ob-status-respond",
+      "name": "Token Status Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        600,
+        2100
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Onboarding Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Input": {
+      "main": [
+        [
+          {
+            "node": "Read Registry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Registry": {
+      "main": [
+        [
+          {
+            "node": "Generate IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate IDs": {
+      "main": [
+        [
+          {
+            "node": "Read Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Template": {
+      "main": [
+        [
+          {
+            "node": "Personalize Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Personalize Workflow": {
+      "main": [
+        [
+          {
+            "node": "Create Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Workflow": {
+      "main": [
+        [
+          {
+            "node": "Check Creation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Creation": {
+      "main": [
+        [
+          {
+            "node": "Activate Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Activate Workflow": {
+      "main": [
+        [
+          {
+            "node": "Save to Registry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Registry": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Recent Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get Registry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Registry": {
+      "main": [
+        [
+          {
+            "node": "Format Clients",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Clients": {
+      "main": [
+        [
+          {
+            "node": "Get Recent Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Update": {
+      "main": [
+        [
+          {
+            "node": "Read Template for Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Template for Update": {
+      "main": [
+        [
+          {
+            "node": "Personalize Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Personalize Update": {
+      "main": [
+        [
+          {
+            "node": "Patch Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Patch Workflow": {
+      "main": [
+        [
+          {
+            "node": "Update Registry Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Registry Row": {
+      "main": [
+        [
+          {
+            "node": "Update Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Delete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Delete": {
+      "main": [
+        [
+          {
+            "node": "Deactivate Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deactivate Workflow": {
+      "main": [
+        [
+          {
+            "node": "Mark Deleted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Deleted": {
+      "main": [
+        [
+          {
+            "node": "Delete Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OAuth URL Webhook": {
+      "main": [
+        [
+          {
+            "node": "OAuth Validate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OAuth Validate": {
+      "main": [
+        [
+          {
+            "node": "Build OAuth URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build OAuth URL": {
+      "main": [
+        [
+          {
+            "node": "OAuth URL Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Token Status Webhook": {
+      "main": [
+        [
+          {
+            "node": "Status Read Registry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Status Read Registry": {
+      "main": [
+        [
+          {
+            "node": "Check Token Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Token Status": {
+      "main": [
+        [
+          {
+            "node": "Token Status Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Almaty",
+    "errorWorkflow": "ВСТАВИТЬ_ID_ERROR_MONITOR"
+  },
+  "tags": [
+    {
+      "name": "antimatter-internal"
+    }
+  ]
+}
